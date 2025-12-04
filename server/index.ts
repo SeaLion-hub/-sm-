@@ -22,7 +22,7 @@ const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Middleware
 const corsOrigins: string[] = [
-  'http://localhost:3000', 
+  'http://localhost:3000',
   'http://127.0.0.1:3000'
 ];
 if (process.env.FRONTEND_URL) {
@@ -57,10 +57,10 @@ app.use('/api/restaurants', restaurantRouter);
 // 프론트엔드 정적 파일 서빙 (프로덕션 환경)
 if (process.env.NODE_ENV === 'production') {
   // dist 폴더 경로 수정 (server/dist가 아닌 루트의 dist)
-  const frontendDistPath = path.join(__dirname, '../dist');
+  const frontendDistPath = path.join(__dirname, '../../dist');
   console.log('Frontend dist path:', frontendDistPath);
   console.log('Dist path exists:', existsSync(frontendDistPath));
-  
+
   // 정적 파일 서빙 (CSS, JS 등) - API 경로는 명시적으로 제외
   const staticMiddleware = express.static(frontendDistPath, {
     maxAge: '1y',
@@ -75,21 +75,21 @@ if (process.env.NODE_ENV === 'production') {
     },
     index: false
   });
-  
+
   // 정적 파일 서빙 및 SPA 라우팅 - GET 요청만 처리 (API 경로 제외)
   app.get('*', (req, res, next) => {
     // API 라우트는 제외
     if (req.path.startsWith('/api')) {
       return next();
     }
-    
+
     // 정적 파일이 존재하는지 확인
     const filePath = path.join(frontendDistPath, req.path);
     if (existsSync(filePath) && statSync(filePath).isFile()) {
       // 정적 파일 서빙
       return staticMiddleware(req, res, next);
     }
-    
+
     // 파일이 없으면 index.html 반환 (SPA 라우팅)
     const indexPath = path.join(frontendDistPath, 'index.html');
     if (existsSync(indexPath)) {
@@ -104,22 +104,22 @@ if (process.env.NODE_ENV === 'production') {
       res.status(500).send('Frontend files not found');
     }
   });
-  
+
   // API가 아닌 다른 HTTP 메서드에 대한 404 처리
   app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {
       return next();
     }
-    res.status(404).json({ 
-      error: 'Not Found', 
+    res.status(404).json({
+      error: 'Not Found',
       message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`
     });
   });
 } else {
   // 개발 환경 404 핸들러
   app.use((req, res) => {
-    res.status(404).json({ 
-      error: 'Not Found', 
+    res.status(404).json({
+      error: 'Not Found',
       message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`,
       availableRoutes: ['/health', '/api/auth', '/api/cafeteria', '/api/restaurants']
     });
