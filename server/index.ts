@@ -61,33 +61,34 @@ if (process.env.NODE_ENV === 'production') {
   console.log('Frontend dist path:', frontendDistPath);
   console.log('Dist path exists:', existsSync(frontendDistPath));
   
-  // 정적 파일 서빙 (CSS, JS 등) - API 라우트는 제외하고 처리
+  // 정적 파일 서빙 (CSS, JS 등) - API 경로는 명시적으로 제외
+  const staticMiddleware = express.static(frontendDistPath, {
+    maxAge: '1y',
+    etag: true,
+    setHeaders: (res, filePath) => {
+      // CSS 파일의 MIME 타입 명시적 설정
+      if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      } else if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      }
+    },
+    index: false
+  });
+  
+  // 정적 파일 서빙 - API 경로 제외
   app.use((req, res, next) => {
-    // API 라우트는 건너뛰기
     if (req.path.startsWith('/api')) {
       return next();
     }
-    // 정적 파일 서빙
-    express.static(frontendDistPath, {
-      maxAge: '1y',
-      etag: true,
-      setHeaders: (res, filePath) => {
-        // CSS 파일의 MIME 타입 명시적 설정
-        if (filePath.endsWith('.css')) {
-          res.setHeader('Content-Type', 'text/css; charset=utf-8');
-        } else if (filePath.endsWith('.js')) {
-          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-        }
-      },
-      index: false
-    })(req, res, next);
+    staticMiddleware(req, res, next);
   });
   
   // API가 아닌 GET 요청만 index.html로 리다이렉트 (SPA 라우팅 지원)
   app.get('*', (req, res, next) => {
     // API 라우트는 제외
     if (req.path.startsWith('/api')) {
-      return next(); // 다음 미들웨어로 (404 핸들러)
+      return next();
     }
     
     // 파일이 없으면 index.html 반환
@@ -103,6 +104,17 @@ if (process.env.NODE_ENV === 'production') {
       console.error('index.html not found at:', indexPath);
       res.status(500).send('Frontend files not found');
     }
+  });
+  
+  // API가 아닌 다른 HTTP 메서드에 대한 404 처리
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.status(404).json({ 
+      error: 'Not Found', 
+      message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`
+    });
   });
 } else {
   // 개발 환경 404 핸들러
