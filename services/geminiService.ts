@@ -6,7 +6,7 @@ import { fetchNearbyRestaurants, formatRestaurantMenusForPrompt } from "./restau
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export const generateYonseiMealPlan = async (user: UserProfile, date?: string): Promise<DailyPlan | null> => {
+export const generateYonseiMealPlan = async (user: UserProfile, date?: string, context?: string): Promise<DailyPlan | null> => {
   try {
     // 좌표 설정 (Grounding용)
     const locationConfig = user.campus === Campus.SINCHON
@@ -46,21 +46,29 @@ export const generateYonseiMealPlan = async (user: UserProfile, date?: string): 
       - 활동량: ${user.activityLevel}
       - 목표: ${user.goal}
       - 알레르기: ${user.allergies || "없음"}
+      - **현재 상황/컨텍스트**: ${context || "별도 상황 없음 (일반적인 식사)"}
 
       [요청 사항]
       1. 사용자의 목표(다이어트/벌크업 등)와 인바디 정보를 분석하여 하루 목표 영양소(Target Macros)를 설정하세요.
-      2. **위에 제공된 실제 학식 메뉴 정보를 우선적으로 활용**하여 추천하세요. 학식 메뉴가 제공된 경우 반드시 그 메뉴 중에서 선택하세요.
-      3. **아침, 점심, 저녁 각각에 대해 2~3가지 선택지(옵션)**를 제공하세요.
+      2. **현재 상황/컨텍스트**를 최우선으로 고려하여 메뉴를 추천하세요.
+         - 예: "30분 내 식사" -> 대기 시간이 짧고 조리가 빠른 학식이나 패스트푸드 위주 추천.
+         - 예: "시험 기간" -> 소화가 잘 되고 집중력에 좋은 메뉴 추천.
+      3. **위에 제공된 실제 학식 메뉴 정보를 우선적으로 활용**하여 추천하세요. 학식 메뉴가 제공된 경우 반드시 그 메뉴 중에서 선택하세요.
+      4. **아침, 점심, 저녁 각각에 대해 2~3가지 선택지(옵션)**를 제공하세요.
          - 옵션에는 반드시 '학식'과 '캠퍼스 근처 식당(또는 편의점)'이 골고루 포함되어야 합니다.
          - 학식 옵션은 위에 제공된 실제 메뉴 중에서 선택하세요.
          - 주변 식당 옵션은 **Google Maps 도구를 반드시 사용**하여 실제 존재하는 식당의 정확한 메뉴명, 가격, 위치를 확인하세요.
-      4. **Google Maps 도구를 적극 활용**하여, 실제 학교 근처에 위치한 식당의 실제 메뉴를 추천하세요. 추정하지 말고 실제 데이터를 사용하세요.
-      5. 메뉴 추천 시 영양 성분(칼로리, 탄단지)은 실제 메뉴 정보를 바탕으로 정확하게 추정하세요.
-      6. 가격대는 학식의 경우 위 정보를 참고하고, 식당의 경우 Google Maps 도구에서 확인한 실제 가격을 적어주세요.
-      7. 각 메뉴마다 다음을 포함하세요:
-         - **impact**: 이 메뉴가 사용자의 목표에 미치는 구체적인 영향 (예: "근육 합성 촉진", "혈당 안정화", "지방 연소 촉진", "회복력 향상" 등)
-         - **detailedReason**: 상세한 추천 이유 (영양학적 관점에서 왜 이 메뉴가 좋은지, 사용자의 목표와 어떻게 연결되는지, 맛/편의성 등)
-      8. 식당 정보는 반드시 Google Maps에서 확인한 실제 정보를 사용하세요. 추정하지 마세요.
+      5. **Google Maps 도구를 적극 활용**하여, 실제 학교 근처에 위치한 식당의 실제 메뉴를 추천하세요. 추정하지 말고 실제 데이터를 사용하세요.
+      6. 메뉴 추천 시 영양 성분(칼로리, 탄단지)은 실제 메뉴 정보를 바탕으로 정확하게 추정하세요.
+      7. 가격대는 학식의 경우 위 정보를 참고하고, 식당의 경우 Google Maps 도구에서 확인한 실제 가격을 적어주세요.
+      8. 각 메뉴마다 다음을 포함하세요:
+         - **impact**: 이 메뉴가 사용자의 목표에 미치는 구체적인 영향
+         - **detailedReason**: 상세한 추천 이유 (영양학적 관점, 목표와의 연결, 맛/편의성 등)
+         - **nutritionGrade**: 영양 신호등 등급 ('GREEN', 'YELLOW', 'RED').
+           - GREEN: 탄단지 균형이 완벽하고 사용자 목표에 부합함.
+           - YELLOW: 나쁘지 않으나 약간의 불균형이 있음.
+           - RED: 고칼로리/고지방/고당류 등으로 주의가 필요함.
+      9. 식당 정보는 반드시 Google Maps에서 확인한 실제 정보를 사용하세요. 추정하지 마세요.
 
       [출력 형식]
       반드시 아래와 같은 순수 JSON 형식으로만 응답하세요. 마크다운 코드 블록(\`\`\`json 등)을 절대 사용하지 마세요.
@@ -78,9 +86,10 @@ export const generateYonseiMealPlan = async (user: UserProfile, date?: string): 
               "fat": 15
             },
             "reason": "간단한 추천 이유",
-            "impact": "구체적인 영향 (예: 근육 합성 촉진, 혈당 안정화 등)",
-            "detailedReason": "상세한 추천 이유 (영양학적 관점, 목표와의 연결, 맛/편의성 등)",
-            "priceEstimate": "가격 (예: 6000원)"
+            "impact": "구체적인 영향",
+            "detailedReason": "상세한 추천 이유",
+            "priceEstimate": "가격 (예: 6000원)",
+            "nutritionGrade": "GREEN" | "YELLOW" | "RED"
           }
         ],
         "lunch": [ ... 위와 동일한 구조의 배열 ... ],

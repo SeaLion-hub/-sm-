@@ -16,7 +16,7 @@ const PlaceIcon = ({ type }: { type: PlaceType }) => {
   }
 };
 
-const MealOptionCard: React.FC<{ 
+const MealOptionCard: React.FC<{
   option: MealOption;
   onShowMap: (option: MealOption) => void;
   campus?: string;
@@ -31,10 +31,10 @@ const MealOptionCard: React.FC<{
 
   const handleDirections = async () => {
     if (!option.coordinates || !campus) return;
-    
+
     const campusCoords = getCampusCoordinates(campus);
     const directions = await getDirections(campusCoords, option.coordinates);
-    
+
     if (directions) {
       // Directions 정보를 사용하여 네이버 지도 길찾기 링크 열기
       const directionsUrl = `https://map.naver.com/v5/directions/${campusCoords.longitude},${campusCoords.latitude},,/${option.coordinates.longitude},${option.coordinates.latitude},,?c=15,0,0,0,dh`;
@@ -53,10 +53,9 @@ const MealOptionCard: React.FC<{
             <PlaceIcon type={option.type} />
           </div>
           <div>
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full mb-1 inline-block ${
-              option.type === '학식' ? 'bg-blue-100 text-yonsei-blue' : 
-              option.type === '식당' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
-            }`}>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full mb-1 inline-block ${option.type === '학식' ? 'bg-blue-100 text-yonsei-blue' :
+                option.type === '식당' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+              }`}>
               {option.type}
             </span>
             <h4 className="font-bold text-gray-800 text-lg leading-tight">{option.placeName}</h4>
@@ -71,9 +70,9 @@ const MealOptionCard: React.FC<{
             <MapPin size={12} />
             지도
           </button>
-          <a 
-            href={mapSearchUrl} 
-            target="_blank" 
+          <a
+            href={mapSearchUrl}
+            target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-xs text-gray-400 hover:text-green-600 hover:underline transition-colors"
             title="네이버 지도로 보기"
@@ -87,7 +86,7 @@ const MealOptionCard: React.FC<{
         <p className="text-gray-900 font-medium">{option.menuName}</p>
         <p className="text-xs text-gray-500 mt-0.5">{option.priceEstimate ? `예상 가격: ${option.priceEstimate}` : ''}</p>
       </div>
-      
+
       <div className="mb-4 space-y-2">
         {option.impact && (
           <div className="bg-blue-50 border-l-4 border-yonsei-blue p-3 rounded-r-lg">
@@ -105,7 +104,7 @@ const MealOptionCard: React.FC<{
           </p>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-4 gap-1 text-center text-[10px] md:text-xs">
         <div className="bg-gray-100 p-1.5 rounded">
           <div className="font-bold text-gray-700">{option.macros.calories}</div>
@@ -124,7 +123,23 @@ const MealOptionCard: React.FC<{
           <div className="text-yellow-400">지</div>
         </div>
       </div>
-      
+
+      {/* Traffic Light Indicator */}
+      {option.nutritionGrade && (
+        <div className={`mt-3 p-2 rounded-lg flex items-center justify-center gap-2 text-xs font-bold ${option.nutritionGrade === 'GREEN' ? 'bg-green-100 text-green-800' :
+            option.nutritionGrade === 'YELLOW' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-red-100 text-red-800'
+          }`}>
+          <div className={`w-2.5 h-2.5 rounded-full ${option.nutritionGrade === 'GREEN' ? 'bg-green-500' :
+              option.nutritionGrade === 'YELLOW' ? 'bg-yellow-500' :
+                'bg-red-500'
+            }`} />
+          {option.nutritionGrade === 'GREEN' ? '영양 균형 우수' :
+            option.nutritionGrade === 'YELLOW' ? '영양 균형 보통' :
+              '영양 주의 필요'}
+        </div>
+      )}
+
       {option.coordinates && campus && (
         <button
           onClick={handleDirections}
@@ -178,7 +193,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
-      
+
       {/* Date Selector */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -252,7 +267,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
                   ))}
                 </Pie>
                 <RechartsTooltip />
-                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{fontSize: '11px'}} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -272,11 +287,10 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                  activeTab === tab.id
+                className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === tab.id
                     ? 'text-yonsei-blue border-b-2 border-yonsei-blue bg-blue-50/30'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <span className="text-lg">{tab.icon}</span> {tab.label}
               </button>
@@ -286,27 +300,27 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
           {/* Tab Content */}
           <div className="p-6 bg-gray-50/50">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {plan[activeTab].map((option, idx) => (
-                    <MealOptionCard 
-                      key={`${activeTab}-${idx}`} 
-                      option={option}
-                      onShowMap={setSelectedMapOption}
-                      campus={campus}
-                    />
-                ))}
+              {plan[activeTab].map((option, idx) => (
+                <MealOptionCard
+                  key={`${activeTab}-${idx}`}
+                  option={option}
+                  onShowMap={setSelectedMapOption}
+                  campus={campus}
+                />
+              ))}
             </div>
             {plan[activeTab].length === 0 && (
-                <div className="text-center py-20 text-gray-400">
-                    추천된 식단이 없습니다.
-                </div>
+              <div className="text-center py-20 text-gray-400">
+                추천된 식단이 없습니다.
+              </div>
             )}
-            
+
             <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
-                <Info size={18} className="text-yonsei-blue mt-0.5 shrink-0" />
-                <div className="text-sm text-gray-600">
-                    <p className="font-bold text-yonsei-blue mb-1">이용 팁</p>
-                    <p>상단 식당 이름 옆의 <strong>'지도'</strong> 링크를 클릭하면 네이버 지도 검색 결과로 바로 연결됩니다. 학식의 경우 운영 시간이 상이할 수 있으니 학교 앱(Y-Top)을 참고하세요.</p>
-                </div>
+              <Info size={18} className="text-yonsei-blue mt-0.5 shrink-0" />
+              <div className="text-sm text-gray-600">
+                <p className="font-bold text-yonsei-blue mb-1">이용 팁</p>
+                <p>상단 식당 이름 옆의 <strong>'지도'</strong> 링크를 클릭하면 네이버 지도 검색 결과로 바로 연결됩니다. 학식의 경우 운영 시간이 상이할 수 있으니 학교 앱(Y-Top)을 참고하세요.</p>
+              </div>
             </div>
           </div>
         </div>

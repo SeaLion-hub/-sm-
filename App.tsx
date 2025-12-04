@@ -59,18 +59,18 @@ const App: React.FC = () => {
     await generatePlan(fullProfile, selectedDate);
   };
 
-  const generatePlan = useCallback(async (profile: UserProfile, date?: string) => {
+  const generatePlan = useCallback(async (profile: UserProfile, date?: string, context?: string) => {
     setLoading(true);
     const targetDate = date || selectedDate;
-    const plan = await generateYonseiMealPlan(profile, targetDate);
+    const plan = await generateYonseiMealPlan(profile, targetDate, context);
     setMealPlan(plan);
     setLoading(false);
     setStep(3);
   }, [selectedDate]);
 
-  const handleRegenerate = () => {
+  const handleRegenerate = (context?: string) => {
     if (userProfile.campus) {
-      generatePlan(userProfile as UserProfile, selectedDate);
+      generatePlan(userProfile as UserProfile, selectedDate, context);
     }
   };
 
@@ -149,14 +149,14 @@ const App: React.FC = () => {
         <main className="flex-1 px-6 py-10 flex items-center justify-center">
           <div className="w-full max-w-lg">
             {showLogin ? (
-              <LoginForm 
-                onLogin={handleLogin} 
-                onSwitchToRegister={() => setShowLogin(false)} 
+              <LoginForm
+                onLogin={handleLogin}
+                onSwitchToRegister={() => setShowLogin(false)}
               />
             ) : (
-              <RegisterForm 
-                onRegister={handleRegister} 
-                onSwitchToLogin={() => setShowLogin(true)} 
+              <RegisterForm
+                onRegister={handleRegister}
+                onSwitchToLogin={() => setShowLogin(true)}
               />
             )}
           </div>
@@ -202,14 +202,14 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 px-6 py-10">
         <div className="max-w-5xl mx-auto">
-          
+
           {step === 1 && (
             <div className="flex flex-col items-center animate-in slide-in-from-bottom-5 duration-500">
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-4 break-keep">
                 소속 캠퍼스를 선택해주세요
               </h1>
               <p className="text-gray-500 text-center mb-10 max-w-lg break-keep">
-                선택하신 캠퍼스의 학식과 근처 맛집 정보를 바탕으로<br/>최적의 맞춤 식단을 제공합니다.
+                선택하신 캠퍼스의 학식과 근처 맛집 정보를 바탕으로<br />최적의 맞춤 식단을 제공합니다.
               </p>
               <CampusSelector selected={userProfile.campus || null} onSelect={handleCampusSelect} />
             </div>
@@ -217,40 +217,40 @@ const App: React.FC = () => {
 
           {step === 2 && (
             <div className="animate-in slide-in-from-right-5 duration-500">
-                <div className="mb-6">
-                    <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-yonsei-blue">
-                        ← 캠퍼스 다시 선택하기
-                    </button>
-                </div>
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-                        <div className="relative">
-                            <div className="w-16 h-16 border-4 border-blue-100 border-t-yonsei-blue rounded-full animate-spin"></div>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <Sparkles size={20} className="text-yonsei-blue" />
-                            </div>
-                        </div>
-                        <h2 className="mt-6 text-xl font-bold text-gray-800">맞춤 식단 생성 중</h2>
-                        <p className="text-gray-500 mt-2">
-                            {userProfile.campus?.includes('송도') ? '송도' : '신촌'} 캠퍼스 근처 메뉴를 분석하고 있습니다...
-                        </p>
+              <div className="mb-6">
+                <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-yonsei-blue">
+                  ← 캠퍼스 다시 선택하기
+                </button>
+              </div>
+              {loading ? (
+                <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+                  <div className="relative">
+                    <div className="w-16 h-16 border-4 border-blue-100 border-t-yonsei-blue rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles size={20} className="text-yonsei-blue" />
                     </div>
-                ) : (
-                    <OnboardingForm initialData={userProfile} onSubmit={handleProfileSubmit} />
-                )}
+                  </div>
+                  <h2 className="mt-6 text-xl font-bold text-gray-800">맞춤 식단 생성 중</h2>
+                  <p className="text-gray-500 mt-2">
+                    {userProfile.campus?.includes('송도') ? '송도' : '신촌'} 캠퍼스 근처 메뉴를 분석하고 있습니다...
+                  </p>
+                </div>
+              ) : (
+                <OnboardingForm initialData={userProfile} onSubmit={handleProfileSubmit} />
+              )}
             </div>
           )}
 
           {step === 3 && mealPlan && (
             <div className="animate-in fade-in duration-700">
-               <div className="mb-6 flex justify-between items-center">
-                    <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
-                        ← 정보 수정하기
-                    </button>
-                </div>
-              <PlanDisplay 
-                plan={mealPlan} 
-                onRegenerate={handleRegenerate} 
+              <div className="mb-6 flex justify-between items-center">
+                <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
+                  ← 정보 수정하기
+                </button>
+              </div>
+              <PlanDisplay
+                plan={mealPlan}
+                onRegenerate={handleRegenerate}
                 loading={loading}
                 selectedDate={selectedDate}
                 onDateChange={handleDateChange}

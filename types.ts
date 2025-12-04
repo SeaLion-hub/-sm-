@@ -45,6 +45,12 @@ export interface MacroNutrients {
 
 export type PlaceType = '학식' | '식당' | '편의점/카페';
 
+export enum NutritionGrade {
+  GREEN = 'GREEN',
+  YELLOW = 'YELLOW',
+  RED = 'RED'
+}
+
 export interface MealOption {
   menuName: string;
   placeName: string; // 식당 이름
