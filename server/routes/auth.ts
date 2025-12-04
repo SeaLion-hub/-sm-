@@ -23,8 +23,17 @@ const isValidActivityLevel = (value: string): value is ActivityLevel => {
 
 export const authRouter = express.Router();
 
+// 디버깅: 모든 요청 로깅
+authRouter.use((req, res, next) => {
+  console.log(`[AUTH ROUTER] Method: ${req.method}, Path: ${req.path}, Original: ${req.originalUrl}`);
+  console.log(`[AUTH ROUTER] Available routes: POST /register, POST /login`);
+  next();
+});
+
 // 회원가입
 authRouter.post('/register', async (req, res) => {
+  console.log(`[AUTH POST /register] Handler called!`);
+  console.log(`[AUTH POST /register] Request body keys:`, Object.keys(req.body || {}));
   try {
     const {
       email,

@@ -40,7 +40,10 @@ app.use(express.json());
 
 // 요청 로깅 (디버깅용)
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`[REQUEST] ${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`[REQUEST] Original URL: ${req.originalUrl}`);
+  console.log(`[REQUEST] Query:`, req.query);
+  console.log(`[REQUEST] Body keys:`, Object.keys(req.body || {}));
   next();
 });
 
@@ -50,6 +53,11 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes (프론트엔드 정적 파일 서빙 전에 위치 - 모든 HTTP 메서드 처리)
+app.use('/api/auth', (req, res, next) => {
+  console.log(`[API AUTH MIDDLEWARE] Method: ${req.method}, Path: ${req.path}, Original: ${req.originalUrl}`);
+  console.log(`[API AUTH MIDDLEWARE] Router will handle: /api/auth${req.path}`);
+  next();
+});
 app.use('/api/auth', authRouter);
 app.use('/api/cafeteria', cafeteriaRouter);
 app.use('/api/restaurants', restaurantRouter);
@@ -80,6 +88,7 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res, next) => {
     // API 라우트는 제외
     if (req.path.startsWith('/api')) {
+      console.log(`[STATIC GET] Skipping API route: ${req.path}`);
       return next();
     }
 
@@ -107,9 +116,12 @@ if (process.env.NODE_ENV === 'production') {
 
   // API가 아닌 다른 HTTP 메서드에 대한 404 처리
   app.use((req, res, next) => {
+    console.log(`[FALLBACK MIDDLEWARE] Method: ${req.method}, Path: ${req.path}`);
     if (req.path.startsWith('/api')) {
+      console.log(`[FALLBACK MIDDLEWARE] API route detected, calling next() - this should not happen for POST /api/auth/register`);
       return next();
     }
+    console.log(`[FALLBACK MIDDLEWARE] Non-API route, returning 404`);
     res.status(404).json({
       error: 'Not Found',
       message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`
@@ -128,8 +140,24 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
+  console.error(`[ERROR HANDLER] Method: ${req.method}, Path: ${req.path}`);
+  console.error('[ERROR HANDLER] Error:', err);
   res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// 405 Method Not Allowed 핸들러 (라우터에서 처리되지 않은 메서드)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    console.log(`[405 HANDLER] Method Not Allowed: ${req.method} ${req.path}`);
+    console.log(`[405 HANDLER] This means the route exists but doesn't handle ${req.method}`);
+    res.status(405).json({
+      error: 'Method Not Allowed',
+      message: `${req.method} method is not allowed for ${req.path}`,
+      allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'] // 예시
+    });
+    return;
+  }
+  next();
 });
 
 app.listen(PORT, '0.0.0.0', () => {
