@@ -25,6 +25,7 @@ const AppContent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [isNewUser, setIsNewUser] = useState<boolean>(false); // 회원가입 직후 플래그
   const { theme, toggleTheme } = useTheme();
 
   // 사용자 정보가 완전한지 확인하는 헬퍼 함수
@@ -90,6 +91,7 @@ const AppContent: React.FC = () => {
   const handleBodyCompositionSubmit = async (data: Partial<UserProfile>) => {
     const fullProfile = { ...userProfile, ...data } as UserProfile;
     setUserProfile(fullProfile);
+    setIsNewUser(false); // 회원가입 플로우 완료
     await generatePlan(fullProfile, selectedDate);
   };
 
@@ -169,10 +171,11 @@ const AppContent: React.FC = () => {
       allergies: result.user.allergies
     };
     setUserProfile(profile);
+    setIsNewUser(true); // 회원가입 직후 플래그 설정
 
-    // 회원가입 직후는 Step 2(기본 정보 확인)부터 시작하여 Step 3(인바디 정보 입력)을 거치도록
+    // 회원가입 직후는 Step 3(인바디 정보 입력)으로 바로 이동 (RegisterForm에서 기본 정보를 이미 입력했으므로)
     setShowLanding(false);
-    setStep(2);
+    setStep(3);
   };
 
   const handleLogout = () => {
@@ -370,8 +373,8 @@ const AppContent: React.FC = () => {
       <main className="flex-1 px-6 py-10">
         <div className="max-w-5xl mx-auto">
 
-          {/* 로그인 후 프로필이 완전한 경우 Step 1-3은 표시하지 않음 */}
-          {step === 1 && !isProfileComplete(userProfile) && (
+          {/* 로그인 후 프로필이 완전한 경우 Step 1-3은 표시하지 않음 (단, 회원가입 직후는 제외) */}
+          {step === 1 && (!isProfileComplete(userProfile) || isNewUser) && (
             <div className="flex flex-col items-center animate-in slide-in-from-bottom-5 duration-500">
               <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center mb-4 break-keep">
                 소속 캠퍼스를 선택해주세요
@@ -383,7 +386,7 @@ const AppContent: React.FC = () => {
             </div>
           )}
 
-          {step === 2 && !isProfileComplete(userProfile) && (
+          {step === 2 && (!isProfileComplete(userProfile) || isNewUser) && (
             <div className="animate-in slide-in-from-right-5 duration-500">
               <div className="mb-6">
                 <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-yonsei-blue">
@@ -394,7 +397,7 @@ const AppContent: React.FC = () => {
             </div>
           )}
 
-          {step === 3 && !isProfileComplete(userProfile) && (
+          {step === 3 && (!isProfileComplete(userProfile) || isNewUser) && (
             <div className="animate-in slide-in-from-right-5 duration-500">
               <div className="mb-6">
                 <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">

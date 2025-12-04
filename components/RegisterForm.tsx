@@ -110,13 +110,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
       <div className="flex items-center justify-center mb-6">
         <div className="w-12 h-12 bg-yonsei-blue rounded-full flex items-center justify-center">
           <UserPlus className="text-white" size={24} />
         </div>
       </div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">회원가입</h2>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2 text-center transition-colors duration-300">회원가입</h2>
       
       {/* 진행률 표시기 */}
       <div className="mb-8">
@@ -130,7 +130,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
                       ? 'bg-yonsei-blue text-white'
                       : currentStep === step.number
                       ? 'bg-yonsei-blue text-white ring-4 ring-yonsei-blue/20'
-                      : 'bg-gray-200 text-gray-500'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {currentStep > step.number ? (
@@ -140,10 +140,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
                   )}
                 </div>
                 <div className="mt-2 text-center">
-                  <div className={`text-xs font-semibold ${currentStep >= step.number ? 'text-gray-800' : 'text-gray-400'}`}>
+                  <div className={`text-xs font-semibold transition-colors duration-300 ${currentStep >= step.number ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>
                     {step.title}
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 hidden sm:block transition-colors duration-300">
                     {step.description}
                   </div>
                 </div>
@@ -151,7 +151,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
               {index < steps.length - 1 && (
                 <div
                   className={`h-1 flex-1 mx-2 transition-all ${
-                    currentStep > step.number ? 'bg-yonsei-blue' : 'bg-gray-200'
+                    currentStep > step.number ? 'bg-yonsei-blue' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                 />
               )}
@@ -161,7 +161,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm transition-colors duration-300">
           {error}
         </div>
       )}
@@ -170,48 +170,52 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       {currentStep === 1 && (
         <div className="space-y-4 animate-in fade-in duration-300">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">이메일</label>
             <input
               type="email"
               required
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="example@yonsei.ac.kr"
+              autoComplete="email"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">비밀번호</label>
             <input
               type="password"
               required
               minLength={6}
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
               value={formData.password}
               onChange={(e) => handleChange('password', e.target.value)}
               placeholder="최소 6자 이상"
+              autoComplete="new-password"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">비밀번호 확인</label>
             <input
               type="password"
               required
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
               value={formData.confirmPassword}
               onChange={(e) => handleChange('confirmPassword', e.target.value)}
               placeholder="비밀번호를 다시 입력하세요"
+              autoComplete="new-password"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">이름</label>
             <input
               type="text"
               required
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="이름을 입력하세요"
+              autoComplete="name"
             />
           </div>
         </div>
@@ -221,10 +225,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       {currentStep === 2 && (
         <div className="space-y-4 animate-in fade-in duration-300">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">캠퍼스</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">캠퍼스</label>
             <select
               required
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white transition-colors duration-300"
               value={formData.campus}
               onChange={(e) => handleChange('campus', e.target.value as Campus)}
             >
@@ -235,10 +239,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">성별</label>
               <select
                 required
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white transition-colors duration-300"
                 value={formData.gender}
                 onChange={(e) => handleChange('gender', e.target.value as Gender)}
               >
@@ -248,13 +252,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">나이 (만)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">나이 (만)</label>
               <input
                 type="number"
                 required
                 min="16"
                 max="99"
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white transition-colors duration-300"
                 value={formData.age}
                 onChange={(e) => handleChange('age', parseInt(e.target.value))}
               />
@@ -262,21 +266,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">신장 (cm)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">신장 (cm)</label>
               <input
                 type="number"
                 required
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white transition-colors duration-300"
                 value={formData.height}
                 onChange={(e) => handleChange('height', parseInt(e.target.value))}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">체중 (kg)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">체중 (kg)</label>
               <input
                 type="number"
                 required
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white transition-colors duration-300"
                 value={formData.weight}
                 onChange={(e) => handleChange('weight', parseInt(e.target.value))}
               />
@@ -289,10 +293,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       {currentStep === 3 && (
         <div className="space-y-4 animate-in fade-in duration-300">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">평소 활동량</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">평소 활동량</label>
             <select
               required
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-sm"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-sm text-gray-900 dark:text-white transition-colors duration-300"
               value={formData.activityLevel}
               onChange={(e) => handleChange('activityLevel', e.target.value as ActivityLevel)}
             >
@@ -303,7 +307,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">목표 설정</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">목표 설정</label>
             <div className="grid grid-cols-1 gap-2">
               {Object.values(Goal).map((g) => (
                 <button
@@ -313,7 +317,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
                   className={`p-3 rounded-lg text-sm font-medium border transition-colors text-left ${
                     formData.goal === g
                       ? 'bg-yonsei-blue text-white border-yonsei-blue'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                      : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
                   }`}
                 >
                   {g}
@@ -323,11 +327,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">알레르기 / 기피 음식 (선택)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors duration-300">알레르기 / 기피 음식 (선택)</label>
             <input
               type="text"
               placeholder="예: 오이, 땅콩, 매운 음식"
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
               value={formData.allergies || ''}
               onChange={(e) => handleChange('allergies', e.target.value)}
             />
@@ -341,7 +345,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           type="button"
           onClick={handlePrevious}
           disabled={currentStep === 1}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
         >
           <ChevronLeft size={18} />
           <span>이전</span>
@@ -351,7 +355,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           <button
             type="button"
             onClick={handleNext}
-            className="flex items-center gap-2 px-6 py-2 bg-yonsei-blue text-white rounded-lg font-medium hover:bg-blue-900 transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-yonsei-blue text-white rounded-lg font-medium hover:bg-blue-900 dark:hover:bg-blue-800 transition-colors duration-300"
           >
             <span>다음</span>
             <ChevronRight size={18} />
@@ -360,19 +364,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-yonsei-blue text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-yonsei-blue text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-900 dark:hover:bg-blue-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? '회원가입 중...' : '회원가입 완료'}
           </button>
         )}
       </div>
 
-      <div className="text-center text-sm text-gray-600 mt-6">
+      <div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6 transition-colors duration-300">
         이미 계정이 있으신가요?{' '}
         <button
           type="button"
           onClick={onSwitchToLogin}
-          className="text-yonsei-blue hover:underline font-medium"
+          className="text-yonsei-blue dark:text-blue-400 hover:underline font-medium transition-colors duration-300"
         >
           로그인
         </button>
