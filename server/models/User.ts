@@ -1,6 +1,6 @@
 import db from '../db/database.js';
 import bcrypt from 'bcryptjs';
-import { Campus, Gender, Goal, ActivityLevel } from '../../types.js';
+import { Campus, Gender, Goal, ActivityLevel } from '../types.js';
 
 export interface UserData {
   id?: number;

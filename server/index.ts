@@ -17,16 +17,22 @@ const __dirname = path.dirname(__filename);
 initDatabase();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Middleware
+const corsOrigins: string[] = [
+  'http://localhost:3000', 
+  'http://127.0.0.1:3000'
+];
+if (process.env.FRONTEND_URL) {
+  corsOrigins.push(process.env.FRONTEND_URL);
+}
+if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+  corsOrigins.push(`https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
+}
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000', 
-    'http://127.0.0.1:3000',
-    process.env.FRONTEND_URL,
-    process.env.RAILWAY_PUBLIC_DOMAIN
-  ].filter(Boolean), // undefined 제거
+  origin: corsOrigins,
   credentials: true
 }));
 app.use(express.json());

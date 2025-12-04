@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
-import { Campus, Gender, Goal, ActivityLevel } from '../../types.js';
+import { Campus, Gender, Goal, ActivityLevel } from '../types.js';
 
 // Campus, Gender, Goal, ActivityLevel enum 값 검증 함수
 const isValidCampus = (value: string): value is Campus => {
