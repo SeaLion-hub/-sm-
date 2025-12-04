@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	
+	<title>연세대학교 생활협동조합</title>
+		<link rel="apple-touch-icon-precomposed" href="/data/" />
+			<link rel="shortcut icon" href="/data/">
+		
+	<!-- css -->
+	<link href="/data/tpl/m_modern/css/shop.css?v=201405051200"?251204114738" type="text/css" rel="stylesheet">
+	<link href="/data/tpl/m_modern/css/m_group.css?v=201405051200"?after" type="text/css" rel="stylesheet">    
+	<link href="/data/tpl/m_modern/css/slidebars.css?v=201405051200" type="text/css" rel="stylesheet">
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+
+	<!-- js -->
+    
+    <script src="/common/js/jquery.swipejs.js?v=201405051200"></script>
+    
+	<script type="text/javascript" src="/common/js/jquery.min.js?v=201405051200"></script>
+	<script type="text/javascript" src="/common/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/common/js/sky.jquery.js?v=201405051200"></script>
+	<script type="text/javascript" src="/common/js/durian.common.js?v=201405051200"></script>
+	<script type="text/javascript" src="/common/js/jquery.slidebars.js?v=201405051200"></script>
+	<script type="text/javascript">
+    var _varCurrentAct = 'info.page/29//'; 
+	jQuery(document).ready(function(){
+         if(window.location.protocol == 'http:'){
+            window.location.href = "https://yonseicoop.co.kr/"+window.location.search;
+	}
+		jQuery('#sns_share_facebook').on('click', onMobileShareClick);
+		jQuery('#sns_share_twitter').on('click', onMobileShareClick);
+		jQuery('#sns_share_kakaostory').on('click', onMobileShareClick);
+		jQuery('#sns_share_kakaotalk').on('click', onMobileShareClick);
+
+		// 검색 버튼
+		jQuery('#search_menu_btn').on('click', function(){
+			jQuery('.search_box').slideToggle('fast');
+		});
+
+		// 카테고리 메뉴
+		jQuery('#category input').on('click', function(){
+			jQuery(this).parent().next().slideToggle('fast');
+			jQuery(this).toggleClass('category_orange_up_btn').toggleClass('category_orange_down_btn');
+		});
+	});
+	</script>
+		
+</head>
+
+<body>
+	<div id="wrap">
+		<!-- HEADER BEGIN -->
+		<header>
+		<!-- nav -->
+<nav>
+
+<ul>
+	<li id="slide_menu"><img src="/data/images/common/ham.png" border="0" alt="카테고리 메뉴"></a>
+	<li class="logo_image shop_top" onclick="location.href='/m/'">
+    <!-- site logo -->
+		<div>
+					<a href="/m/"><img src="/data/file/22_1.png"></a>
+				</div>
+    </li>
+	<li class="logo_image group_top" onclick="location.href='/m/?act=info.page1'">
+    <!-- site logo -->
+		<div>
+					<a href="/m/"><img src="/data/file/22_1.png"></a>
+				</div>
+    </li>
+	<!--
+    <li id="search_menu_btn"><img src="/data/images/common/search.png" border="0" alt="검색"></li>
+   	<li id="mypage_menu_btn"><a href="?act=mypage"><img src="/data/images/common/mypage.png" border="0" alt="마이페이지"></a></li>
+    <li id="phone_menu_btn"><a href="?act=shop.cart_list"><img src="/data/images/common/cart.png" border="0" alt="장바구니
+	">
+     -->
+</a></li>
+</ul>
+</nav>
+
+<div class="roll_menu">
+	<ul>
+		<li>
+			<span><a href="?act=shop.goods_list&GC=GD09">교재도서</a></span>
+		</li>
+		<li>
+			<span><a href="?act=shop.goods_list&GC=GD0H">연세동문기업</a></span>
+		</li>
+		<li>
+			<span><a href="?act=shop.goods_list&GC=GD0J">렌탈서비스</a></span>
+		</li>
+		<li>
+			<span><a href="?act=shop.goods_list&GC=GD04">기획전</a></span>
+		</li>
+		<li>
+			<span><a href="?act=board&bbs_code=notice">공지사항</a></span>
+		</li>
+		<li>
+			<span><a href="https://post.naver.com/viewer/postView.nhn?volumeNo=30907683&memberNo=52685896">생협소식</a></span>
+		</li>
+	</ul>
+</div>
+<!-- 검색 -->
+<script type="text/javascript">
+	function good_search() {
+		document.forms['form_good_search']
+		if ($id('search_input').value.length == 0) {
+			alert('검색어를 입력해주세요.');
+			$id('search_input').focus();
+			return false;
+		} else {
+			return true;
+		}
+	}
+</script>
+
+<div class="search_box" style="display:none" >
+	<form id="form_search" name="form_search" method="get" autocomplete="on" onsubmit="return good_search();">
+	<input type="hidden" name="act" value="shop.goods_search">
+	<fieldset>
+		<input type="search" name="keyword" class="search" placeholder="연세대학교,생활협동조합,기념품,보람샘,백양누리,연세대생협,연세대기념품" value="" xonfocus="if(this.value=='연세대학교,생활협동조합,기념품,보람샘,백양누리,연세대생협,연세대기념품'){this.value='';}" xonblur="if(this.value==''){this.value='연세대학교,생활협동조합,기념품,보람샘,백양누리,연세대생협,연세대기념품';}">
+		<input type="submit" value="검색" class="top_search_btn">
+	</fieldset> 
+    </form>
+</div>
+
+		</header>
+		<!-- HEADER END -->
+		
+		<!-- BODY BEGIN -->
+		<div id="container">
+		<div id="contents">
+    <h2>
+    식단
+    </h2>
+    <dl class="s_txt">
+        <p>
+            <iframe width="100%" height="700" src="https://www.yonsei.ac.kr/_custom/yonsei/m/menu.jsp" frameborder="no" marginwidth="0" marginheight="0" bordercolor="0"></iframe>        </p>
+      </dl></div>		</div>
+		<!-- BODY END -->
+		
+		<!-- FOOTER BEGIN -->
+		<footer>
+		<!--CALL : L_MOBILE_FOOTER : m_modern--><div id="footer_menu">
+	<ul>
+        <!--
+		<li>
+							<a href="?act=user.user_login">로그인</a>
+					</li>
+		<li>
+							<a href="?act=user.user_join_agree">회원가입</a>
+			               -->
+		</li>
+		<li><a href="?act=info.usage">고객센터</a></li>
+		<li class="group_top"><a href="https://yonseicoop.com/">쇼핑몰</a></li>
+		<li class="shop_top"><a href="?act=info.page1">생활협동조합</a></li>
+       <li class="group_top"><a href="/m/?act=info.page&seq=24">매장안내</a></li>
+       <li class="group_top"><a href="/m/?act=info.page&seq=29">식단안내</a></li>
+        
+	</ul>
+</div>
+
+<div class="foot-logo">
+	<p><img src="//ecimg.cafe24img.com/pg647b62405218065/yonseiwebling/logo01.png"></p>
+</div>
+<div id="f_service_btn" align="center">
+	<span onClick="location.href='./?act=info.provision';">회사소개</span>
+	<span onClick="location.href='./?act=info.privacy';">이용약관</span>
+  <!--	<span onClick="location.href='./?act=info.privacy';">개인정보보호취급방침</span><br> 
+   -->
+	<span onClick="location.href='./?act=info.no_email_collect';">이메일무단수집거부</span>
+	<span onClick="location.href='./?act=info.page5';">오시는길</span>
+     <!--
+	<span onClick="location.href='./?act=info.page9';">판매자 가입안내</span>
+       -->
+</div>
+
+<address>
+	연세대학교 생활협동조합<br/>
+	상호명: 연세대학교 생활협동조합 | 사업자번호: 890-82-00336<br/>
+	통신판매업신고번호: 2021-서울서대문-0417 <br/>
+	대표: 김용호 | 개인정보관리 책임자: 권훈<br/>
+	고객센터: 02-2123-4022 | <a href="mailto:yonseicoop@yonsei.ac.kr">yonseicoop@yonsei.ac.kr</a><br/>
+	서울특별시 서대문구 연세로 50 (신촌동 연세대학교) 학생회관 1층 연세대학교 생활협동조합<br/><br/>
+	(C)연세대학교 생활협동조합 All rights reserved. hosting by WHOIS
+</address>
+
+
+		</footer>
+		<!-- FOOTER END -->
+	</div>
+
+	<div class="sb-slidebar sb-left" data-sb-width="40%">
+		<!--CALL : L_MOBILE_CATEGORY : m_modern--><!-- category -->
+<div id="category">
+	<div id="category_top_menu">
+		<ul class="group_top">
+			<li>
+			<a href="tel:02-2123-4038">
+				<dl>
+					<dt><img src="/data/images/common/icn_call.png"></dt>
+					<dd>전화상담</dd>
+				</dl>
+			</a>
+			</li>
+			<li>
+				<a href="/m/">
+				<dl>
+					<dt><img src="/data/images/common/icn_group.png"></dt>
+					<dd>홈페이지</dd>
+				</dl>
+				</a>
+			</li>
+			<li>
+				<a href="/m/?act=mypage.wish_list">
+				<dl>
+                     <!--
+					<dt><img src="/data/images/common/icn_jjim.png"></dt>
+					<dd>찜한상품</dd>
+				</dl>
+				</a>
+			</li>
+			<li>
+				<a href="/m/?act=shop.goods_list&GC=TODAY">
+				<dl>
+					<dt><img src="/data/images/common/icn_today.png"></dt>
+					<dd>오늘본상품</dd>
+				</dl>
+				</a>
+			</li>
+		</ul>
+        -->
+		<ul class="shop_top">
+			<li>
+				<a href="tel:02-2123-4038">
+				<dl>
+					<dt><img src="/data/images/common/icn_call.png"></dt>
+					<dd>전화상담</dd>
+				</dl>
+				</a>
+			</li>
+			<li>
+				<a href="/m/?act=info.page1">
+				<dl>
+					<dt><img src="/data/images/common/icn_group.png"></dt>
+					<dd>연세생협</dd>
+				</dl>
+				</a>
+			</li>
+			<li>
+				<a href="/m/?act=mypage.wish_list">
+				<dl>
+					<dt><img src="/data/images/common/icn_jjim.png"></dt>
+					<dd>찜한상품</dd>
+				</dl>
+				</a>
+			</li>
+			<li>
+				<a href="/m/?act=shop.goods_list&GC=TODAY">
+				<dl>
+					<dt><img src="/data/images/common/icn_today.png"></dt>
+					<dd>오늘본상품</dd>
+				</dl>
+				</a>
+			</li>
+		</ul>
+	</div>
+	<!-- 1차 메뉴 -->
+	<div class="category_menu_1dephs">
+	<ul class="shop_cate">
+																																																																																													</ul>
+	<ul class="group_cate">
+		<li style="background-color:#FDD;">
+			<a href="/m/?act=info.page1">생활협동조합소개</a><span class="category_btn"><input type="button" value="" title="열기" class="category_orange_down_btn" /></span>
+			<div class="category_menu_2dephs">
+				<ul>
+					<li><a href="/m/?act=info.page2">연혁</a></li>
+					<li><a href="/m/?act=info.page3">정관</a></li>
+					<li><a href="/m/?act=info.page4">조직현황</a></li>
+					<li><a href="/m/?act=info.page5">오시는길</a></li>
+				</ul>
+			</div>
+		</li>
+		<li style="background-color:#FDD;">
+			<a href="/m/?act=info.page6">조합원</a><span class="category_btn"><input type="button" value="" title="열기" class="category_orange_down_btn" /></span>
+			<div class="category_menu_2dephs">
+				<ul>
+					<li><a href="/m/?act=info.page6">조합원 안내</a></li>
+					<li><a href="/m/?act=info.page7">조합원 여부 확인</a></li>
+					<li><a href="/m/?act=community.form_application&pcode=60506d32c1ff0154932361yr8">조합원 가입</a></li>
+					<li><a href="/m/?act=community.form_application&pcode=6051525497c3c305236123yp8">조합원 탈퇴</a></li>
+				</ul>
+			</div>
+		</li>
+		<li style="background-color:#FDD;">
+			<a href="/m/?act=info.page11">매장안내</a><span class="category_btn"><input type="button" value="" title="열기" class="category_orange_down_btn" /></span>
+			<div class="category_menu_2dephs">
+				<ul>
+					<li><a href="/m/?act=info.page&seq=24">카페</a></li>
+					<li><a href="/m/?act=info.page&seq=25">식당</a></li>
+					<li><a href="/m/?act=info.page&seq=26">편의점</a></li>
+					<li><a href="/m/?act=info.page&seq=27">복사실</a></li>
+					<li><a href="/m/?act=info.page&seq=28">기타편의시설</a></li>
+				</ul>
+			</div>
+		</li>
+		<li style="background-color:#FDD;">
+			<a href="/m/?act=board&bbs_code=noticeyonsei">공지사항</a><span class="category_btn"><input type="button" value="" title="열기" class="category_orange_down_btn" /></span>
+			<div class="category_menu_2dephs">
+				<ul>
+					<li><a href="/m/?act=board&bbs_code=noticeyonsei">공지사항</a></li>
+					<li><a href="/m/?act=board&bbs_code=freeboard">자유게시판</a></li>
+					<li><a href="/m/?act=info.page&seq=29">식단안내</a></li>
+				</ul>
+			</div>
+		</li>
+	</ul>
+
+</div>
+	</div>
+
+		<!-- user js -->
+	<script type="text/javascript">
+	var _fcNaviControlMap = {
+	'info.page/5//'			: '1',
+	'info.page/7//'			: '1',
+	'info.page/8//'			: '1',
+	'info.page/21//'			: '1',
+	'info.page/22//'			: '1',
+	'info.page/23//'			: '2',
+	'community.form_application///5c9052dbab95e691306954ygg'			: '2',
+	'community.form_application///5c9052ed16efa9659473806jx'			: '2',
+	'info.page/24//'			: '3',
+	'info.page/25//'			: '3',
+	'info.page/26//'			: '3',
+	'info.page/27//'			: '3',
+	'info.page/28//'			: '3',
+	'info.page/29//'			: '3',
+	'shop.goods_list///'			: '4',
+    'shop.goods_view///'		: '4',
+	'board//notice/'			: '5',
+	'board//freeboard/'			: '5',
+	'board//p_qna/'			: '5',
+	'board//ass/'			: '5'
+
+};
+jQuery(document).ready(function(){
+	jQuery('#m_navi .m_navi_main li').each(function(){
+		jQuery(this).click(function(){
+            _fcNaviControl(jQuery(this).attr('subcode'));
+            location.href = jQuery(this).attr('url');
+			return false;
+		});
+	});
+    
+	var curSubCode = _fcNaviControlMap[_varCurrentAct];
+    if( curSubCode ) {
+		_fcNaviControl(curSubCode);
+	}
+});
+
+var _fcNaviControl = function(selCode) {
+	if(!selCode) return;
+	jQuery('#m_navi .m_navi_main li').each(function(){
+		jQuery('#m_navi .m_navi_sub_'+jQuery(this).attr('subcode')).hide();
+	});
+	jQuery('#m_navi .m_navi_sub_'+selCode).show();
+};
+
+if(location.protocol == 'http:'){
+    window.location.href = "https://yonseicoop.co.kr"+location.pathname;
+}	</script>
+	    
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+        // 카테고리 메뉴 슬라이더
+        var mySlidebars = new jQuery.slidebars();
+        jQuery('#slide_menu').on('click', function() {
+            mySlidebars.toggle('left');
+        });
+        });
+    </script>
+    
+	<!-- log script -->
+<script type="text/javascript">!function(){var e={z:Math.random(),rs:screen.width+"x"+screen.height,l:navigator.browserLanguage||navigator.language,p:navigator.platform,u:escape(document.location.href),r:escape(document.referrer),a:navigator.userAgent},r="/log/log.php?";for(var a in e)r+="&"+a+"="+e[a];document.write('<img src="'+r+'" width=0 height=0>')}();</script>
+
+
+</body>
+</html><div style="display:none;"><!--
+---------------------------
+ START 2025-12-04 23:47:38
+ EXEC            : 0.00634
+ LAYOUT          : 0.00048
+ END             : 0.01246
+---------------------------
+ TOTAL           : 0.01928
+---------------------------
+ MEMORY USAGE    : 4.54 MB
+---------------------------
+--></div>

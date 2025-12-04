@@ -1,0 +1,7 @@
+{
+  "name": "Y-Nutri (연세 뉴트리)",
+  "description": "연세대학교 학생들을 위한 개인 맞춤형 영양 관리 서비스. 학식 및 신촌/송도 맛집 기반 식단 추천 및 인바디 분석.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
