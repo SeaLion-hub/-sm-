@@ -54,15 +54,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
-      <div 
-        className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">프로필 수정</h2>
+        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between transition-colors">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">프로필 수정</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-500 dark:text-gray-400"
           >
             <X size={24} />
           </button>
@@ -70,13 +70,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
         <form onSubmit={handleSubmit} className="p-6">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300 text-sm">
               프로필이 성공적으로 업데이트되었습니다.
             </div>
           )}
@@ -84,7 +84,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
           <div className="space-y-6">
             {/* 캠퍼스 선택 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">캠퍼스</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">캠퍼스</label>
               <CampusSelector
                 selected={formData.campus || null}
                 onSelect={(campus) => handleChange('campus', campus)}
@@ -94,10 +94,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
             {/* 기본 정보 */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">성별</label>
                 <select
                   required
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white"
                   value={formData.gender || ''}
                   onChange={(e) => handleChange('gender', e.target.value as Gender)}
                 >
@@ -106,13 +106,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">나이 (만)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">나이 (만)</label>
                 <input
                   type="number"
                   required
                   min="16"
                   max="99"
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white"
                   value={formData.age || ''}
                   onChange={(e) => handleChange('age', parseInt(e.target.value))}
                 />
@@ -121,21 +121,21 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">신장 (cm)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">신장 (cm)</label>
                 <input
                   type="number"
                   required
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white"
                   value={formData.height || ''}
                   onChange={(e) => handleChange('height', parseInt(e.target.value))}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">체중 (kg)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">체중 (kg)</label>
                 <input
                   type="number"
                   required
-                  className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                  className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white"
                   value={formData.weight || ''}
                   onChange={(e) => handleChange('weight', parseInt(e.target.value))}
                 />
@@ -143,8 +143,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
             </div>
 
             {/* 인바디 정보 */}
-            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-              <div className="flex items-center gap-2 mb-4 text-yonsei-blue">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800">
+              <div className="flex items-center gap-2 mb-4 text-yonsei-blue dark:text-blue-400">
                 <Activity size={20} />
                 <span className="text-base font-bold">인바디 정보 (선택사항)</span>
               </div>
@@ -161,12 +161,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">체지방률 (%)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">체지방률 (%)</label>
                   <input
                     type="number"
                     step="0.1"
                     placeholder="예: 15.3"
-                    className="w-full p-3 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue outline-none"
+                    className="w-full p-3 bg-white dark:bg-gray-700 border border-blue-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
                     value={formData.bodyFat || ''}
                     onChange={(e) => handleChange('bodyFat', e.target.value ? parseFloat(e.target.value) : undefined)}
                   />
@@ -176,10 +176,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
             {/* 활동량 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">평소 활동량</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">평소 활동량</label>
               <select
                 required
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-sm"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-sm text-gray-900 dark:text-white"
                 value={formData.activityLevel || ''}
                 onChange={(e) => handleChange('activityLevel', e.target.value as ActivityLevel)}
               >
@@ -190,18 +190,17 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
             {/* 목표 설정 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">목표 설정</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">목표 설정</label>
               <div className="grid grid-cols-1 gap-2">
                 {Object.values(Goal).map((g) => (
                   <button
                     type="button"
                     key={g}
                     onClick={() => handleChange('goal', g)}
-                    className={`p-3 rounded-lg text-sm font-medium border transition-colors text-left ${
-                      formData.goal === g
-                        ? 'bg-yonsei-blue text-white border-yonsei-blue'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                    }`}
+                    className={`p-3 rounded-lg text-sm font-medium border transition-colors text-left ${formData.goal === g
+                      ? 'bg-yonsei-blue text-white border-yonsei-blue'
+                      : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
+                      }`}
                   >
                     {g}
                   </button>
@@ -211,11 +210,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
 
             {/* 알레르기 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">알레르기 / 기피 음식 (선택)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">알레르기 / 기피 음식 (선택)</label>
               <input
                 type="text"
                 placeholder="예: 오이, 땅콩, 매운 음식"
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yonsei-blue focus:border-transparent outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
                 value={formData.allergies || ''}
                 onChange={(e) => handleChange('allergies', e.target.value)}
               />
@@ -226,7 +225,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, userProfil
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 취소
               </button>

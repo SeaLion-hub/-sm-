@@ -46,7 +46,7 @@ const MealOptionCard: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:border-yonsei-blue transition-all group">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 hover:border-yonsei-blue dark:hover:border-blue-500 transition-all group">
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center gap-2">
           <div className="p-1.5 bg-gray-100 rounded-lg group-hover:bg-blue-50 transition-colors">
@@ -54,11 +54,11 @@ const MealOptionCard: React.FC<{
           </div>
           <div>
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full mb-1 inline-block ${option.type === '학식' ? 'bg-blue-100 text-yonsei-blue' :
-                option.type === '식당' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+              option.type === '식당' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
               }`}>
               {option.type}
             </span>
-            <h4 className="font-bold text-gray-800 text-lg leading-tight">{option.placeName}</h4>
+            <h4 className="font-bold text-gray-800 dark:text-gray-100 text-lg leading-tight">{option.placeName}</h4>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -83,8 +83,8 @@ const MealOptionCard: React.FC<{
       </div>
 
       <div className="mb-3 pl-10">
-        <p className="text-gray-900 font-medium">{option.menuName}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{option.priceEstimate ? `예상 가격: ${option.priceEstimate}` : ''}</p>
+        <p className="text-gray-900 dark:text-gray-200 font-medium">{option.menuName}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{option.priceEstimate ? `예상 가격: ${option.priceEstimate}` : ''}</p>
       </div>
 
       <div className="mb-4 space-y-2">
@@ -97,9 +97,9 @@ const MealOptionCard: React.FC<{
             <p className="text-xs text-gray-700 leading-relaxed">{option.impact}</p>
           </div>
         )}
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <p className="text-xs font-medium text-gray-700 mb-1">💡 추천 이유</p>
-          <p className="text-sm text-gray-600 leading-relaxed text-xs">
+        <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">💡 추천 이유</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-xs">
             {option.detailedReason || option.reason}
           </p>
         </div>
@@ -127,12 +127,12 @@ const MealOptionCard: React.FC<{
       {/* Traffic Light Indicator */}
       {option.nutritionGrade && (
         <div className={`mt-3 p-2 rounded-lg flex items-center justify-center gap-2 text-xs font-bold ${option.nutritionGrade === 'GREEN' ? 'bg-green-100 text-green-800' :
-            option.nutritionGrade === 'YELLOW' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
+          option.nutritionGrade === 'YELLOW' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-red-100 text-red-800'
           }`}>
           <div className={`w-2.5 h-2.5 rounded-full ${option.nutritionGrade === 'GREEN' ? 'bg-green-500' :
-              option.nutritionGrade === 'YELLOW' ? 'bg-yellow-500' :
-                'bg-red-500'
+            option.nutritionGrade === 'YELLOW' ? 'bg-yellow-500' :
+              'bg-red-500'
             }`} />
           {option.nutritionGrade === 'GREEN' ? '영양 균형 우수' :
             option.nutritionGrade === 'YELLOW' ? '영양 균형 보통' :
@@ -196,7 +196,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
     <div className="w-full max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
 
       {/* Date Selector */}
-      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-blue-50 rounded-lg">
@@ -211,9 +211,9 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
                   onChange={(e) => onDateChange(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                   max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                  className="text-base font-bold text-gray-900 border-none outline-none bg-transparent cursor-pointer"
+                  className="text-base font-bold text-gray-900 dark:text-white border-none outline-none bg-transparent cursor-pointer dark:[color-scheme:dark]"
                 />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {formatDate(selectedDate)}
                   {isToday && <span className="ml-1.5 text-yonsei-blue font-semibold">(오늘)</span>}
                 </span>
@@ -241,14 +241,14 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
       </div>
 
       {/* Context Input - 상황에 맞춰 다시 추천받기 */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 shadow-sm border border-blue-100">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-5 shadow-sm border border-blue-100 dark:border-blue-800">
         <div className="flex items-start gap-3 mb-3">
           <div className="p-2 bg-yonsei-blue/10 rounded-lg">
             <Sparkles className="text-yonsei-blue" size={20} />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-bold text-gray-800 mb-1">상황에 맞춰 다시 추천받기</h3>
-            <p className="text-xs text-gray-600 mb-3">
+            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-1">상황에 맞춰 다시 추천받기</h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
               예: "시험 기간이라 소화 잘되는 거 추천해줘", "30분 안에 빨리 먹어야 해", "매운 게 땡겨"
             </p>
             <div className="flex gap-2">
@@ -262,7 +262,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
                   }
                 }}
                 placeholder="지금 상황을 자유롭게 입력해주세요..."
-                className="flex-1 px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-yonsei-blue focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                className="flex-1 px-4 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-yonsei-blue focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
                 disabled={loading}
               />
               <button
@@ -314,7 +314,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center relative overflow-hidden">
           <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 z-10">목표 탄단지 비율</h3>
           <div className="h-40 w-full z-10 min-h-[160px]" style={{ minWidth: '200px' }}>
             <ResponsiveContainer width="100%" height={160}>
@@ -344,18 +344,18 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
 
       {/* Meal Selection Tabs */}
       <div>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">끼니별 추천 리스트</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">끼니별 추천 리스트</h2>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[500px]">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-h-[500px]">
           {/* Tab Headers */}
-          <div className="flex border-b border-gray-100">
+          <div className="flex border-b border-gray-100 dark:border-gray-700">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === tab.id
-                    ? 'text-yonsei-blue border-b-2 border-yonsei-blue bg-blue-50/30'
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'text-yonsei-blue border-b-2 border-yonsei-blue bg-blue-50/30 dark:bg-blue-900/20'
+                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
               >
                 <span className="text-lg">{tab.icon}</span> {tab.label}
@@ -364,7 +364,7 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
           </div>
 
           {/* Tab Content */}
-          <div className="p-6 bg-gray-50/50">
+          <div className="p-6 bg-gray-50/50 dark:bg-gray-900/50">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {plan[activeTab].map((option, idx) => (
                 <MealOptionCard

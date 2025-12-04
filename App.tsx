@@ -10,9 +10,11 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import LandingPage from './components/LandingPage';
 import ProfileModal from './components/ProfileModal';
-import { Sparkles, LogOut, User, Settings } from 'lucide-react';
+import MealPlanSkeleton from './components/MealPlanSkeleton';
+import { Sparkles, LogOut, User, Settings, Moon, Sun } from 'lucide-react';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [showLanding, setShowLanding] = useState<boolean>(true);
   const [showLogin, setShowLogin] = useState<boolean>(true);
@@ -23,6 +25,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const { theme, toggleTheme } = useTheme();
 
   // 사용자 정보가 완전한지 확인하는 헬퍼 함수
   const isProfileComplete = (profile: Partial<UserProfile>): boolean => {
@@ -60,7 +63,7 @@ const App: React.FC = () => {
             allergies: user.allergies
           };
           setUserProfile(profile);
-          
+
           // 프로필이 완전하면 랜딩페이지로, 아니면 정보 입력 단계로
           if (isProfileComplete(profile)) {
             setShowLanding(true);
@@ -141,13 +144,10 @@ const App: React.FC = () => {
       allergies: result.user.allergies
     };
     setUserProfile(profile);
-    
-    // 프로필이 완전하면 랜딩페이지로, 아니면 정보 입력 단계로
-    if (isProfileComplete(profile)) {
-      setShowLanding(true);
-    } else {
-      setStep(1);
-    }
+
+    // 회원가입 직후는 Step 2(기본 정보 확인)부터 시작하여 Step 3(인바디 정보 입력)을 거치도록
+    setShowLanding(false);
+    setStep(2);
   };
 
   const handleRegister = async (data: any) => {
@@ -169,9 +169,10 @@ const App: React.FC = () => {
       allergies: result.user.allergies
     };
     setUserProfile(profile);
-    
-    // 회원가입 직후는 정보 입력 단계로 (이미 정보가 있지만 확인/수정 가능)
-    setStep(1);
+
+    // 회원가입 직후는 Step 2(기본 정보 확인)부터 시작하여 Step 3(인바디 정보 입력)을 거치도록
+    setShowLanding(false);
+    setStep(2);
   };
 
   const handleLogout = () => {
@@ -200,16 +201,27 @@ const App: React.FC = () => {
   };
 
   const handleGetMealPlan = async () => {
+    // 프로필이 불완전하면 정보 입력 단계로
     if (!isProfileComplete(userProfile)) {
-      // 프로필이 불완전하면 정보 입력 단계로
+      console.warn('프로필이 불완전합니다:', userProfile);
       setShowLanding(false);
       setStep(1);
       return;
     }
-    
+
     // 저장된 정보로 바로 식단 생성
     setShowLanding(false);
-    await generatePlan(userProfile as UserProfile, selectedDate);
+    // Step 4로 먼저 이동하여 로딩 상태 표시 (식단이 없어도 로딩 화면 표시)
+    setStep(4);
+    setLoading(true);
+
+    try {
+      await generatePlan(userProfile as UserProfile, selectedDate);
+    } catch (error) {
+      console.error('식단 생성 오류:', error);
+      setLoading(false);
+      // 오류 발생 시에도 정보 입력 단계로 가지 않고 Step 4에 머물도록
+    }
   };
 
   const handleProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
@@ -217,8 +229,8 @@ const App: React.FC = () => {
     // localStorage의 user 정보도 업데이트
     const user = getCurrentUser();
     if (user) {
-      const updatedUser = { 
-        ...user, 
+      const updatedUser = {
+        ...user,
         ...updatedProfile,
         campus: updatedProfile.campus as string || user.campus,
         gender: updatedProfile.gender as string || user.gender,
@@ -239,22 +251,30 @@ const App: React.FC = () => {
     }
 
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-300">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
           <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
             <button
               onClick={handleLogoClick}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
             >
               <div className="w-8 h-8 bg-yonsei-blue rounded flex items-center justify-center text-white font-bold font-serif">Y</div>
-              <span className="text-xl font-bold text-slate-900 tracking-tight">Y-Nutri</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Y-Nutri</span>
             </button>
-            <button
-              onClick={() => setShowLanding(true)}
-              className="text-sm text-gray-500 hover:text-yonsei-blue transition-colors"
-            >
-              ← 홈으로
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+              <button
+                onClick={() => setShowLanding(true)}
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-yonsei-blue dark:hover:text-blue-400 transition-colors"
+              >
+                ← 홈으로
+              </button>
+            </div>
           </div>
         </header>
 
@@ -281,9 +301,9 @@ const App: React.FC = () => {
   if (isAuth && showLanding) {
     return (
       <>
-        <LandingPage 
-          isAuth={true} 
-          onGetStarted={() => setShowLanding(false)} 
+        <LandingPage
+          isAuth={true}
+          onGetStarted={() => setShowLanding(false)}
           onGetMealPlan={handleGetMealPlan}
         />
         <ProfileModal
@@ -297,41 +317,47 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <button
             onClick={handleLogoClick}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <div className="w-8 h-8 bg-yonsei-blue rounded flex items-center justify-center text-white font-bold font-serif">Y</div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">Y-Nutri</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Y-Nutri</span>
           </button>
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             {currentUser && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                 <User size={16} />
                 <span>{currentUser.name}님</span>
               </div>
             )}
             {step === 3 && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-yonsei-blue font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-yonsei-blue dark:text-blue-300 font-bold text-xs">
                   {userProfile.campus?.includes('송도') ? '송도' : '신촌'}
                 </div>
               </div>
             )}
             <button
               onClick={() => setShowProfileModal(true)}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-yonsei-blue transition-colors"
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-yonsei-blue dark:hover:text-blue-400 transition-colors"
             >
               <Settings size={16} />
               <span>프로필</span>
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-yonsei-blue transition-colors"
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-yonsei-blue dark:hover:text-blue-400 transition-colors"
             >
               <LogOut size={16} />
               <span>로그아웃</span>
@@ -344,19 +370,20 @@ const App: React.FC = () => {
       <main className="flex-1 px-6 py-10">
         <div className="max-w-5xl mx-auto">
 
-          {step === 1 && (
+          {/* 로그인 후 프로필이 완전한 경우 Step 1-3은 표시하지 않음 */}
+          {step === 1 && !isProfileComplete(userProfile) && (
             <div className="flex flex-col items-center animate-in slide-in-from-bottom-5 duration-500">
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-4 break-keep">
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white text-center mb-4 break-keep">
                 소속 캠퍼스를 선택해주세요
               </h1>
-              <p className="text-gray-500 text-center mb-10 max-w-lg break-keep">
+              <p className="text-gray-500 dark:text-gray-400 text-center mb-10 max-w-lg break-keep">
                 선택하신 캠퍼스의 학식과 근처 맛집 정보를 바탕으로<br />최적의 맞춤 식단을 제공합니다.
               </p>
               <CampusSelector selected={userProfile.campus || null} onSelect={handleCampusSelect} />
             </div>
           )}
 
-          {step === 2 && (
+          {step === 2 && !isProfileComplete(userProfile) && (
             <div className="animate-in slide-in-from-right-5 duration-500">
               <div className="mb-6">
                 <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-yonsei-blue">
@@ -367,7 +394,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && !isProfileComplete(userProfile) && (
             <div className="animate-in slide-in-from-right-5 duration-500">
               <div className="mb-6">
                 <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
@@ -375,21 +402,10 @@ const App: React.FC = () => {
                 </button>
               </div>
               {loading ? (
-                <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-                  <div className="relative">
-                    <div className="w-16 h-16 border-4 border-blue-100 border-t-yonsei-blue rounded-full animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles size={20} className="text-yonsei-blue" />
-                    </div>
-                  </div>
-                  <h2 className="mt-6 text-xl font-bold text-gray-800">맞춤 식단 생성 중</h2>
-                  <p className="text-gray-500 mt-2">
-                    {userProfile.campus?.includes('송도') ? '송도' : '신촌'} 캠퍼스 근처 메뉴를 분석하고 있습니다...
-                  </p>
-                </div>
+                <MealPlanSkeleton />
               ) : (
-                <BodyCompositionForm 
-                  initialData={userProfile} 
+                <BodyCompositionForm
+                  initialData={userProfile}
                   onSubmit={handleBodyCompositionSubmit}
                   onBack={() => setStep(2)}
                 />
@@ -397,23 +413,37 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {step === 4 && mealPlan && (
+          {step === 4 && (
             <div className="animate-in fade-in duration-700">
-              <PlanDisplay
-                plan={mealPlan}
-                onRegenerate={handleRegenerate}
-                loading={loading}
-                selectedDate={selectedDate}
-                onDateChange={handleDateChange}
-                campus={userProfile.campus}
-              />
+              {loading ? (
+                <MealPlanSkeleton />
+              ) : mealPlan ? (
+                <PlanDisplay
+                  plan={mealPlan}
+                  onRegenerate={handleRegenerate}
+                  loading={loading}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                  campus={userProfile.campus}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+                  <p className="text-gray-500 dark:text-gray-400">식단을 생성할 수 없습니다. 프로필을 확인해주세요.</p>
+                  <button
+                    onClick={() => setShowProfileModal(true)}
+                    className="mt-4 px-4 py-2 bg-yonsei-blue text-white rounded-lg hover:bg-blue-900 transition-colors"
+                  >
+                    프로필 수정
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </main>
 
-      <footer className="bg-white border-t border-gray-200 py-8 text-center text-gray-400 text-sm">
-        <p>© 2024 Y-Nutri. Designed for Yonsei Students.</p>
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 text-center text-gray-400 text-sm transition-colors duration-300">
+        <p>© 2025 Y-Nutri. Designed for Yonsei Students.</p>
         <p className="mt-2 text-xs">Powered by Google Gemini 2.5 Flash</p>
       </footer>
 
@@ -424,6 +454,14 @@ const App: React.FC = () => {
         onUpdate={handleProfileUpdate}
       />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 
