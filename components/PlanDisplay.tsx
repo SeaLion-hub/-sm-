@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { DailyPlan, MealOption, PlaceType, MapCoordinates } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
-import { MapPin, Info, ExternalLink, School, Store, Coffee, Calendar, TrendingUp, Navigation } from 'lucide-react';
+import { MapPin, Info, ExternalLink, School, Store, Coffee, Calendar, TrendingUp, Navigation, Sparkles } from 'lucide-react';
 import RestaurantMap from './RestaurantMap';
 import { getDirections, getCampusCoordinates } from '../services/mapService';
 
@@ -155,7 +155,7 @@ const MealOptionCard: React.FC<{
 
 interface PlanDisplayProps {
   plan: DailyPlan;
-  onRegenerate: () => void;
+  onRegenerate: (context?: string) => void;
   loading: boolean;
   selectedDate: string;
   onDateChange: (date: string) => void;
@@ -165,6 +165,7 @@ interface PlanDisplayProps {
 const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, selectedDate, onDateChange, campus }) => {
   const [activeTab, setActiveTab] = useState<'breakfast' | 'lunch' | 'dinner'>('lunch');
   const [selectedMapOption, setSelectedMapOption] = useState<MealOption | null>(null);
+  const [contextInput, setContextInput] = useState<string>('');
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
@@ -195,33 +196,98 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
     <div className="w-full max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
 
       {/* Date Selector */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="text-yonsei-blue" size={20} />
-            <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">식단 날짜</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => onDateChange(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                className="text-lg font-bold text-gray-800 border-none outline-none bg-transparent cursor-pointer"
-              />
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Calendar className="text-yonsei-blue" size={20} />
             </div>
-            <span className="text-sm text-gray-500">
-              {formatDate(selectedDate)}
-              {isToday && <span className="ml-2 text-yonsei-blue font-medium">(오늘)</span>}
-            </span>
+            <div className="flex flex-col">
+              <label className="text-xs font-medium text-gray-500 mb-1">식단 날짜</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => onDateChange(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                  className="text-base font-bold text-gray-900 border-none outline-none bg-transparent cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {formatDate(selectedDate)}
+                  {isToday && <span className="ml-1.5 text-yonsei-blue font-semibold">(오늘)</span>}
+                </span>
+              </div>
+            </div>
           </div>
           <button
-            onClick={onRegenerate}
+            onClick={() => onRegenerate()}
             disabled={loading}
-            className="text-sm text-yonsei-blue hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 border border-yonsei-blue/20"
+            className="flex items-center gap-2 text-sm text-yonsei-blue hover:bg-blue-50 px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 border border-yonsei-blue/20 whitespace-nowrap"
           >
-            {loading ? '분석 중...' : '🔄 다시 생성'}
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-yonsei-blue border-t-transparent rounded-full animate-spin"></div>
+                <span>분석 중...</span>
+              </>
+            ) : (
+              <>
+                <span>🔄</span>
+                <span>다시 생성</span>
+              </>
+            )}
           </button>
+        </div>
+      </div>
+
+      {/* Context Input - 상황에 맞춰 다시 추천받기 */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 shadow-sm border border-blue-100">
+        <div className="flex items-start gap-3 mb-3">
+          <div className="p-2 bg-yonsei-blue/10 rounded-lg">
+            <Sparkles className="text-yonsei-blue" size={20} />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-gray-800 mb-1">상황에 맞춰 다시 추천받기</h3>
+            <p className="text-xs text-gray-600 mb-3">
+              예: "시험 기간이라 소화 잘되는 거 추천해줘", "30분 안에 빨리 먹어야 해", "매운 게 땡겨"
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={contextInput}
+                onChange={(e) => setContextInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !loading && contextInput.trim()) {
+                    onRegenerate(contextInput.trim());
+                  }
+                }}
+                placeholder="지금 상황을 자유롭게 입력해주세요..."
+                className="flex-1 px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-yonsei-blue focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                disabled={loading}
+              />
+              <button
+                onClick={() => {
+                  if (contextInput.trim()) {
+                    onRegenerate(contextInput.trim());
+                  }
+                }}
+                disabled={loading || !contextInput.trim()}
+                className="px-5 py-2.5 bg-yonsei-blue text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>분석 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    <span>맞춤 추천</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

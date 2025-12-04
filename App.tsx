@@ -7,10 +7,12 @@ import OnboardingForm from './components/OnboardingForm';
 import PlanDisplay from './components/PlanDisplay';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import LandingPage from './components/LandingPage';
 import { Sparkles, LogOut, User } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState<boolean>(false);
+  const [showLanding, setShowLanding] = useState<boolean>(true);
   const [showLogin, setShowLogin] = useState<boolean>(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [step, setStep] = useState<number>(1);
@@ -133,16 +135,42 @@ const App: React.FC = () => {
     setShowLogin(true);
   };
 
-  // 인증되지 않은 경우 로그인/회원가입 화면 표시
+  const handleLogoClick = () => {
+    if (!isAuth) {
+      // 로그인 전: 랜딩페이지로 이동
+      setShowLanding(true);
+    } else {
+      // 로그인 후: 메인 화면(캠퍼스 선택)으로 이동
+      setStep(1);
+      setMealPlan(null);
+    }
+  };
+
+  // 인증되지 않은 경우 랜딩페이지 또는 로그인/회원가입 화면 표시
   if (!isAuth) {
+    if (showLanding) {
+      return (
+        <LandingPage onGetStarted={() => setShowLanding(false)} />
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <button
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <div className="w-8 h-8 bg-yonsei-blue rounded flex items-center justify-center text-white font-bold font-serif">Y</div>
               <span className="text-xl font-bold text-slate-900 tracking-tight">Y-Nutri</span>
-            </div>
+            </button>
+            <button
+              onClick={() => setShowLanding(true)}
+              className="text-sm text-gray-500 hover:text-yonsei-blue transition-colors"
+            >
+              ← 홈으로
+            </button>
           </div>
         </header>
 
@@ -170,10 +198,13 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <button
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <div className="w-8 h-8 bg-yonsei-blue rounded flex items-center justify-center text-white font-bold font-serif">Y</div>
             <span className="text-xl font-bold text-slate-900 tracking-tight">Y-Nutri</span>
-          </div>
+          </button>
           <div className="flex items-center gap-4">
             {currentUser && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
