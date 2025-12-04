@@ -23,6 +23,7 @@ const AppContent: React.FC = () => {
   const [userProfile, setUserProfile] = useState<Partial<UserProfile>>({});
   const [mealPlan, setMealPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true); // 초기 로딩 상태 추가
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [isNewUser, setIsNewUser] = useState<boolean>(false); // 회원가입 직후 플래그
@@ -43,7 +44,11 @@ const AppContent: React.FC = () => {
 
   // 앱 시작 시 인증 상태 확인
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
+      setInitialLoading(true);
+      // 약간의 지연을 주어 로딩 화면이 보이도록 함
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       if (isAuthenticated()) {
         const user = getCurrentUser();
         if (user) {
@@ -73,6 +78,7 @@ const AppContent: React.FC = () => {
           }
         }
       }
+      setInitialLoading(false);
     };
     checkAuth();
   }, []);
@@ -128,54 +134,68 @@ const AppContent: React.FC = () => {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    const result = await login(email, password);
-    setCurrentUser(result.user);
-    setIsAuth(true);
-    // 사용자 정보를 userProfile로 변환
-    const profile: Partial<UserProfile> = {
-      name: result.user.name,
-      campus: result.user.campus as Campus,
-      gender: result.user.gender as Gender,
-      age: result.user.age,
-      height: result.user.height,
-      weight: result.user.weight,
-      muscleMass: result.user.muscleMass,
-      bodyFat: result.user.bodyFat,
-      goal: result.user.goal as Goal,
-      activityLevel: result.user.activityLevel as ActivityLevel,
-      allergies: result.user.allergies
-    };
-    setUserProfile(profile);
+    setLoading(true); // 로그인 중 로딩 표시
+    try {
+      const result = await login(email, password);
+      setCurrentUser(result.user);
+      setIsAuth(true);
+      // 사용자 정보를 userProfile로 변환
+      const profile: Partial<UserProfile> = {
+        name: result.user.name,
+        campus: result.user.campus as Campus,
+        gender: result.user.gender as Gender,
+        age: result.user.age,
+        height: result.user.height,
+        weight: result.user.weight,
+        muscleMass: result.user.muscleMass,
+        bodyFat: result.user.bodyFat,
+        goal: result.user.goal as Goal,
+        activityLevel: result.user.activityLevel as ActivityLevel,
+        allergies: result.user.allergies
+      };
+      setUserProfile(profile);
 
-    // 회원가입 직후는 Step 2(기본 정보 확인)부터 시작하여 Step 3(인바디 정보 입력)을 거치도록
-    setShowLanding(false);
-    setStep(2);
+      // 프로필이 완전하면 랜딩페이지로, 아니면 정보 입력 단계로
+      if (isProfileComplete(profile)) {
+        setShowLanding(true);
+      } else {
+        setShowLanding(false);
+        setStep(1);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegister = async (data: any) => {
-    const result = await register(data);
-    setCurrentUser(result.user);
-    setIsAuth(true);
-    // 사용자 정보를 userProfile로 변환
-    const profile: Partial<UserProfile> = {
-      name: result.user.name,
-      campus: result.user.campus as Campus,
-      gender: result.user.gender as Gender,
-      age: result.user.age,
-      height: result.user.height,
-      weight: result.user.weight,
-      muscleMass: result.user.muscleMass,
-      bodyFat: result.user.bodyFat,
-      goal: result.user.goal as Goal,
-      activityLevel: result.user.activityLevel as ActivityLevel,
-      allergies: result.user.allergies
-    };
-    setUserProfile(profile);
-    setIsNewUser(true); // 회원가입 직후 플래그 설정
+    setLoading(true); // 회원가입 중 로딩 표시
+    try {
+      const result = await register(data);
+      setCurrentUser(result.user);
+      setIsAuth(true);
+      // 사용자 정보를 userProfile로 변환
+      const profile: Partial<UserProfile> = {
+        name: result.user.name,
+        campus: result.user.campus as Campus,
+        gender: result.user.gender as Gender,
+        age: result.user.age,
+        height: result.user.height,
+        weight: result.user.weight,
+        muscleMass: result.user.muscleMass,
+        bodyFat: result.user.bodyFat,
+        goal: result.user.goal as Goal,
+        activityLevel: result.user.activityLevel as ActivityLevel,
+        allergies: result.user.allergies
+      };
+      setUserProfile(profile);
+      setIsNewUser(true); // 회원가입 직후 플래그 설정
 
-    // 회원가입 직후는 Step 3(인바디 정보 입력)으로 바로 이동 (RegisterForm에서 기본 정보를 이미 입력했으므로)
-    setShowLanding(false);
-    setStep(3);
+      // 회원가입 직후는 Step 3(인바디 정보 입력)으로 바로 이동 (RegisterForm에서 기본 정보를 이미 입력했으므로)
+      setShowLanding(false);
+      setStep(3);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -245,6 +265,25 @@ const AppContent: React.FC = () => {
     }
   };
 
+  // 초기 로딩 화면
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-300">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 bg-yonsei-blue rounded-full flex items-center justify-center text-white font-bold font-serif text-2xl animate-pulse">
+            Y
+          </div>
+          <div className="flex gap-2">
+            <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   // 인증되지 않은 경우 랜딩페이지 또는 로그인/회원가입 화면 표시
   if (!isAuth) {
     if (showLanding) {
@@ -283,16 +322,34 @@ const AppContent: React.FC = () => {
 
         <main className="flex-1 px-6 py-10 flex items-center justify-center">
           <div className="w-full max-w-lg">
-            {showLogin ? (
-              <LoginForm
-                onLogin={handleLogin}
-                onSwitchToRegister={() => setShowLogin(false)}
-              />
+            {loading ? (
+              <div className="flex flex-col items-center justify-center min-h-[400px]">
+                <div className="w-16 h-16 bg-yonsei-blue rounded-full flex items-center justify-center text-white font-bold font-serif text-2xl animate-pulse mb-4">
+                  Y
+                </div>
+                <div className="flex gap-2 mb-2">
+                  <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-yonsei-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  {showLogin ? '로그인 중...' : '회원가입 중...'}
+                </p>
+              </div>
             ) : (
-              <RegisterForm
-                onRegister={handleRegister}
-                onSwitchToLogin={() => setShowLogin(true)}
-              />
+              <>
+                {showLogin ? (
+                  <LoginForm
+                    onLogin={handleLogin}
+                    onSwitchToRegister={() => setShowLogin(false)}
+                  />
+                ) : (
+                  <RegisterForm
+                    onRegister={handleRegister}
+                    onSwitchToLogin={() => setShowLogin(true)}
+                  />
+                )}
+              </>
             )}
           </div>
         </main>
@@ -397,10 +454,13 @@ const AppContent: React.FC = () => {
             </div>
           )}
 
-          {step === 3 && (!isProfileComplete(userProfile) || isNewUser) && (
+          {step === 3 && (isNewUser || !isProfileComplete(userProfile)) && (
             <div className="animate-in slide-in-from-right-5 duration-500">
               <div className="mb-6">
-                <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
+                <button 
+                  onClick={() => setStep(2)} 
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-yonsei-blue dark:hover:text-blue-400 transition-colors"
+                >
                   ← 이전 단계로
                 </button>
               </div>
