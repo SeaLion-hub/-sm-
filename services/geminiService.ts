@@ -9,15 +9,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 export const generateYonseiMealPlan = async (user: UserProfile, date?: string): Promise<DailyPlan | null> => {
   try {
     // 좌표 설정 (Grounding용)
-    const locationConfig = user.campus === Campus.SINCHON 
+    const locationConfig = user.campus === Campus.SINCHON
       ? { latitude: 37.5640, longitude: 126.9370 } // 연세대 신촌
       : { latitude: 37.3820, longitude: 126.6690 }; // 연세대 송도
 
-    const campusContext = user.campus === Campus.SINCHON 
-      ? "연세대학교 신촌 캠퍼스 (학생회관, 고를샘, 맛나샘, 청경관, 공학원 등 학식 및 신촌역/이대후문 근처 맛집)" 
+    const campusContext = user.campus === Campus.SINCHON
+      ? "연세대학교 신촌 캠퍼스 (학생회관, 고를샘, 맛나샘, 청경관, 공학원 등 학식 및 신촌역/이대후문 근처 맛집)"
       : "연세대학교 국제 캠퍼스 (송도 1기숙사, 2기숙사 식당, Y-Plaza 학식 및 송도 캠퍼스타운/트리플스트리트 맛집)";
 
-    const inBodyInfo = (user.muscleMass || user.bodyFat) 
+    const inBodyInfo = (user.muscleMass || user.bodyFat)
       ? `[인바디] 골격근량: ${user.muscleMass}kg, 체지방률: ${user.bodyFat}%`
       : "[인바디] 정보 없음 (표준 체형 기준)";
 
@@ -95,24 +95,43 @@ export const generateYonseiMealPlan = async (user: UserProfile, date?: string): 
       }
     `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        tools: [{ googleMaps: {} }], // Grounding 활성화
-        toolConfig: {
-          retrievalConfig: {
-            latLng: locationConfig
-          }
-        },
-        // Google Maps 툴 사용 시 responseMimeType: 'application/json' 및 responseSchema 사용 불가
-        temperature: 0.5, 
-      },
-    });
+    let response;
+    const maxRetries = 3;
+    let retryCount = 0;
+
+    while (retryCount < maxRetries) {
+      try {
+        response = await ai.models.generateContent({
+          model: 'gemini-2.0-flash',
+          contents: prompt,
+          config: {
+            tools: [{ googleMaps: {} }], // Grounding 활성화
+            toolConfig: {
+              retrievalConfig: {
+                latLng: locationConfig
+              }
+            },
+            // Google Maps 툴 사용 시 responseMimeType: 'application/json' 및 responseSchema 사용 불가
+            temperature: 0.5,
+          },
+        });
+        break; // Success
+      } catch (error: any) {
+        if (error.status === 503 || (error.error && error.error.code === 503)) {
+          retryCount++;
+          console.log(`Gemini API 503 error, retrying... (${retryCount}/${maxRetries})`);
+          if (retryCount === maxRetries) throw error;
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1)));
+        } else {
+          throw error;
+        }
+      }
+    }
 
     let text = response.text;
     if (!text) return null;
-    
+
     // JSON 파싱 전 마크다운 코드 블록 제거
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
