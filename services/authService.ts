@@ -139,3 +139,68 @@ export const isAuthenticated = (): boolean => {
   return !!getToken();
 };
 
+export interface UpdateProfileResponse {
+  message: string;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    campus: string;
+    gender: string;
+    age: number;
+    height: number;
+    weight: number;
+    muscleMass?: number;
+    bodyFat?: number;
+    goal: string;
+    activityLevel: string;
+    allergies?: string;
+  };
+}
+
+export const updateProfile = async (updates: Partial<UserProfile>): Promise<UpdateProfileResponse> => {
+  const url = API_BASE_URL ? `${API_BASE_URL}/api/auth/profile` : '/api/auth/profile';
+  const token = getToken();
+  
+  if (!token) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      let errorMessage = '프로필 업데이트에 실패했습니다.';
+      try {
+        const error = await response.json();
+        errorMessage = error.error || errorMessage;
+      } catch {
+        errorMessage = `서버 오류 (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+    
+    // localStorage의 user 정보 업데이트
+    if (result.user) {
+      localStorage.setItem('user', JSON.stringify(result.user));
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Update profile error:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('프로필 업데이트 중 네트워크 오류가 발생했습니다.');
+  }
+};
+

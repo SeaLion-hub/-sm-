@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile, Gender, Goal, ActivityLevel } from '../types';
-import { ChevronRight, Activity } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 interface OnboardingFormProps {
   initialData: Partial<UserProfile>;
@@ -67,36 +67,6 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ initialData, onSubmit }
               onChange={(e) => handleChange('weight', parseInt(e.target.value))}
             />
           </div>
-        </div>
-
-        {/* InBody Section */}
-        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-            <div className="flex items-center gap-2 mb-3 text-yonsei-blue">
-                <Activity size={18} />
-                <span className="text-sm font-bold">인바디 정보 (선택사항)</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">골격근량 (kg)</label>
-                    <input 
-                        type="number" 
-                        placeholder="예: 30"
-                        className="w-full p-2 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue outline-none text-sm"
-                        value={formData.muscleMass || ''}
-                        onChange={(e) => handleChange('muscleMass', parseFloat(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">체지방률 (%)</label>
-                    <input 
-                        type="number" 
-                        placeholder="예: 15"
-                        className="w-full p-2 bg-white border border-blue-200 rounded-lg focus:ring-2 focus:ring-yonsei-blue outline-none text-sm"
-                        value={formData.bodyFat || ''}
-                        onChange={(e) => handleChange('bodyFat', parseFloat(e.target.value))}
-                    />
-                </div>
-            </div>
         </div>
 
         <div>

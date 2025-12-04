@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
-import { generateToken } from '../middleware/auth.js';
+import { generateToken, authenticateToken, AuthRequest } from '../middleware/auth.js';
 import { Campus, Gender, Goal, ActivityLevel } from '../types.js';
 
 // Campus, Gender, Goal, ActivityLevel enum 값 검증 함수
@@ -26,7 +26,7 @@ export const authRouter = express.Router();
 // 디버깅: 모든 요청 로깅
 authRouter.use((req, res, next) => {
   console.log(`[AUTH ROUTER] Method: ${req.method}, Path: ${req.path}, Original: ${req.originalUrl}`);
-  console.log(`[AUTH ROUTER] Available routes: POST /register, POST /login`);
+  console.log(`[AUTH ROUTER] Available routes: POST /register, POST /login, GET /me, PUT /profile`);
   next();
 });
 
@@ -171,6 +171,76 @@ authRouter.get('/me', async (req, res) => {
     console.error('Get user error:', error);
     res.status(500).json({ 
       error: '사용자 정보 조회 중 오류가 발생했습니다.',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// 프로필 업데이트
+authRouter.put('/profile', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: '인증이 필요합니다.' });
+    }
+
+    const {
+      name,
+      campus,
+      gender,
+      age,
+      height,
+      weight,
+      muscleMass,
+      bodyFat,
+      goal,
+      activityLevel,
+      allergies
+    } = req.body;
+
+    // Enum 값 검증
+    if (campus && !isValidCampus(campus)) {
+      return res.status(400).json({ error: '유효하지 않은 캠퍼스 값입니다.' });
+    }
+    if (gender && !isValidGender(gender)) {
+      return res.status(400).json({ error: '유효하지 않은 성별 값입니다.' });
+    }
+    if (goal && !isValidGoal(goal)) {
+      return res.status(400).json({ error: '유효하지 않은 목표 값입니다.' });
+    }
+    if (activityLevel && !isValidActivityLevel(activityLevel)) {
+      return res.status(400).json({ error: '유효하지 않은 활동량 값입니다.' });
+    }
+
+    // 업데이트할 데이터 구성
+    const updates: any = {};
+    if (name !== undefined) updates.name = name.trim();
+    if (campus !== undefined) updates.campus = campus;
+    if (gender !== undefined) updates.gender = gender;
+    if (age !== undefined) updates.age = parseInt(age);
+    if (height !== undefined) updates.height = parseFloat(height);
+    if (weight !== undefined) updates.weight = parseFloat(weight);
+    if (muscleMass !== undefined) updates.muscleMass = muscleMass ? parseFloat(muscleMass) : null;
+    if (bodyFat !== undefined) updates.bodyFat = bodyFat ? parseFloat(bodyFat) : null;
+    if (goal !== undefined) updates.goal = goal;
+    if (activityLevel !== undefined) updates.activityLevel = activityLevel;
+    if (allergies !== undefined) updates.allergies = allergies ? allergies.trim() : null;
+
+    // 사용자 업데이트
+    const updatedUser = User.update(userId, updates);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+    }
+
+    res.json({
+      message: '프로필이 업데이트되었습니다.',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ 
+      error: '프로필 업데이트 중 오류가 발생했습니다.',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

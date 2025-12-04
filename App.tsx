@@ -1,14 +1,16 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { UserProfile, DailyPlan } from './types';
+import { UserProfile, DailyPlan, Campus, Gender, Goal, ActivityLevel } from './types';
 import { generateYonseiMealPlan } from './services/geminiService';
 import { login, register, getCurrentUser, logout, isAuthenticated } from './services/authService';
 import CampusSelector from './components/CampusSelector';
 import OnboardingForm from './components/OnboardingForm';
+import BodyCompositionForm from './components/BodyCompositionForm';
 import PlanDisplay from './components/PlanDisplay';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import LandingPage from './components/LandingPage';
-import { Sparkles, LogOut, User } from 'lucide-react';
+import ProfileModal from './components/ProfileModal';
+import { Sparkles, LogOut, User, Settings } from 'lucide-react';
 
 const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState<boolean>(false);
@@ -20,6 +22,20 @@ const App: React.FC = () => {
   const [mealPlan, setMealPlan] = useState<DailyPlan | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+
+  // 사용자 정보가 완전한지 확인하는 헬퍼 함수
+  const isProfileComplete = (profile: Partial<UserProfile>): boolean => {
+    return !!(
+      profile.campus &&
+      profile.gender &&
+      profile.age &&
+      profile.height &&
+      profile.weight &&
+      profile.goal &&
+      profile.activityLevel
+    );
+  };
 
   // 앱 시작 시 인증 상태 확인
   useEffect(() => {
@@ -30,20 +46,27 @@ const App: React.FC = () => {
           setCurrentUser(user);
           setIsAuth(true);
           // 사용자 정보를 userProfile로 변환
-          setUserProfile({
+          const profile: Partial<UserProfile> = {
             name: user.name,
-            campus: user.campus,
-            gender: user.gender,
+            campus: user.campus as Campus,
+            gender: user.gender as Gender,
             age: user.age,
             height: user.height,
             weight: user.weight,
             muscleMass: user.muscleMass,
             bodyFat: user.bodyFat,
-            goal: user.goal,
-            activityLevel: user.activityLevel,
+            goal: user.goal as Goal,
+            activityLevel: user.activityLevel as ActivityLevel,
             allergies: user.allergies
-          });
-          setStep(1); // 캠퍼스 선택 단계로
+          };
+          setUserProfile(profile);
+          
+          // 프로필이 완전하면 랜딩페이지로, 아니면 정보 입력 단계로
+          if (isProfileComplete(profile)) {
+            setShowLanding(true);
+          } else {
+            setStep(1);
+          }
         }
       }
     };
@@ -58,28 +81,44 @@ const App: React.FC = () => {
   const handleProfileSubmit = async (data: Partial<UserProfile>) => {
     const fullProfile = { ...userProfile, ...data } as UserProfile;
     setUserProfile(fullProfile);
+    setStep(3);
+  };
+
+  const handleBodyCompositionSubmit = async (data: Partial<UserProfile>) => {
+    const fullProfile = { ...userProfile, ...data } as UserProfile;
+    setUserProfile(fullProfile);
     await generatePlan(fullProfile, selectedDate);
   };
 
   const generatePlan = useCallback(async (profile: UserProfile, date?: string, context?: string) => {
     setLoading(true);
     const targetDate = date || selectedDate;
-    const plan = await generateYonseiMealPlan(profile, targetDate, context);
-    setMealPlan(plan);
-    setLoading(false);
-    setStep(3);
+    try {
+      const plan = await generateYonseiMealPlan(profile, targetDate, context);
+      setMealPlan(plan);
+      // 식단 생성 후 항상 Step 4로 이동 (정보 입력 단계로 돌아가지 않음)
+      setStep(4);
+    } catch (error) {
+      console.error('식단 생성 오류:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedDate]);
 
-  const handleRegenerate = (context?: string) => {
-    if (userProfile.campus) {
-      generatePlan(userProfile as UserProfile, selectedDate, context);
+  const handleRegenerate = async (context?: string) => {
+    if (userProfile.campus && isProfileComplete(userProfile)) {
+      await generatePlan(userProfile as UserProfile, selectedDate, context);
+      // 재생성 후에도 Step 4에 머물도록 보장
+      setStep(4);
     }
   };
 
   const handleDateChange = async (newDate: string) => {
     setSelectedDate(newDate);
-    if (userProfile.campus && Object.keys(userProfile).length > 1) {
+    if (userProfile.campus && isProfileComplete(userProfile)) {
       await generatePlan(userProfile as UserProfile, newDate);
+      // 날짜 변경 후에도 Step 4에 머물도록 보장
+      setStep(4);
     }
   };
 
@@ -88,20 +127,27 @@ const App: React.FC = () => {
     setCurrentUser(result.user);
     setIsAuth(true);
     // 사용자 정보를 userProfile로 변환
-    setUserProfile({
+    const profile: Partial<UserProfile> = {
       name: result.user.name,
-      campus: result.user.campus,
-      gender: result.user.gender,
+      campus: result.user.campus as Campus,
+      gender: result.user.gender as Gender,
       age: result.user.age,
       height: result.user.height,
       weight: result.user.weight,
       muscleMass: result.user.muscleMass,
       bodyFat: result.user.bodyFat,
-      goal: result.user.goal,
-      activityLevel: result.user.activityLevel,
+      goal: result.user.goal as Goal,
+      activityLevel: result.user.activityLevel as ActivityLevel,
       allergies: result.user.allergies
-    });
-    setStep(1);
+    };
+    setUserProfile(profile);
+    
+    // 프로필이 완전하면 랜딩페이지로, 아니면 정보 입력 단계로
+    if (isProfileComplete(profile)) {
+      setShowLanding(true);
+    } else {
+      setStep(1);
+    }
   };
 
   const handleRegister = async (data: any) => {
@@ -109,19 +155,22 @@ const App: React.FC = () => {
     setCurrentUser(result.user);
     setIsAuth(true);
     // 사용자 정보를 userProfile로 변환
-    setUserProfile({
+    const profile: Partial<UserProfile> = {
       name: result.user.name,
-      campus: result.user.campus,
-      gender: result.user.gender,
+      campus: result.user.campus as Campus,
+      gender: result.user.gender as Gender,
       age: result.user.age,
       height: result.user.height,
       weight: result.user.weight,
       muscleMass: result.user.muscleMass,
       bodyFat: result.user.bodyFat,
-      goal: result.user.goal,
-      activityLevel: result.user.activityLevel,
+      goal: result.user.goal as Goal,
+      activityLevel: result.user.activityLevel as ActivityLevel,
       allergies: result.user.allergies
-    });
+    };
+    setUserProfile(profile);
+    
+    // 회원가입 직후는 정보 입력 단계로 (이미 정보가 있지만 확인/수정 가능)
     setStep(1);
   };
 
@@ -140,9 +189,44 @@ const App: React.FC = () => {
       // 로그인 전: 랜딩페이지로 이동
       setShowLanding(true);
     } else {
-      // 로그인 후: 메인 화면(캠퍼스 선택)으로 이동
+      // 로그인 후: 식단이 있으면 Step 4로, 없으면 랜딩페이지로
+      if (mealPlan) {
+        setShowLanding(false);
+        setStep(4);
+      } else {
+        setShowLanding(true);
+      }
+    }
+  };
+
+  const handleGetMealPlan = async () => {
+    if (!isProfileComplete(userProfile)) {
+      // 프로필이 불완전하면 정보 입력 단계로
+      setShowLanding(false);
       setStep(1);
-      setMealPlan(null);
+      return;
+    }
+    
+    // 저장된 정보로 바로 식단 생성
+    setShowLanding(false);
+    await generatePlan(userProfile as UserProfile, selectedDate);
+  };
+
+  const handleProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
+    setUserProfile(prev => ({ ...prev, ...updatedProfile }));
+    // localStorage의 user 정보도 업데이트
+    const user = getCurrentUser();
+    if (user) {
+      const updatedUser = { 
+        ...user, 
+        ...updatedProfile,
+        campus: updatedProfile.campus as string || user.campus,
+        gender: updatedProfile.gender as string || user.gender,
+        goal: updatedProfile.goal as string || user.goal,
+        activityLevel: updatedProfile.activityLevel as string || user.activityLevel
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setCurrentUser(updatedUser);
     }
   };
 
@@ -150,7 +234,7 @@ const App: React.FC = () => {
   if (!isAuth) {
     if (showLanding) {
       return (
-        <LandingPage onGetStarted={() => setShowLanding(false)} />
+        <LandingPage isAuth={false} onGetStarted={() => setShowLanding(false)} />
       );
     }
 
@@ -193,6 +277,25 @@ const App: React.FC = () => {
     );
   }
 
+  // 로그인 후 랜딩페이지 표시
+  if (isAuth && showLanding) {
+    return (
+      <>
+        <LandingPage 
+          isAuth={true} 
+          onGetStarted={() => setShowLanding(false)} 
+          onGetMealPlan={handleGetMealPlan}
+        />
+        <ProfileModal
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          userProfile={userProfile}
+          onUpdate={handleProfileUpdate}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
@@ -219,6 +322,13 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-yonsei-blue transition-colors"
+            >
+              <Settings size={16} />
+              <span>프로필</span>
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 text-sm text-gray-600 hover:text-yonsei-blue transition-colors"
@@ -253,6 +363,17 @@ const App: React.FC = () => {
                   ← 캠퍼스 다시 선택하기
                 </button>
               </div>
+              <OnboardingForm initialData={userProfile} onSubmit={handleProfileSubmit} />
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="animate-in slide-in-from-right-5 duration-500">
+              <div className="mb-6">
+                <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
+                  ← 이전 단계로
+                </button>
+              </div>
               {loading ? (
                 <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
                   <div className="relative">
@@ -267,18 +388,17 @@ const App: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <OnboardingForm initialData={userProfile} onSubmit={handleProfileSubmit} />
+                <BodyCompositionForm 
+                  initialData={userProfile} 
+                  onSubmit={handleBodyCompositionSubmit}
+                  onBack={() => setStep(2)}
+                />
               )}
             </div>
           )}
 
-          {step === 3 && mealPlan && (
+          {step === 4 && mealPlan && (
             <div className="animate-in fade-in duration-700">
-              <div className="mb-6 flex justify-between items-center">
-                <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-yonsei-blue">
-                  ← 정보 수정하기
-                </button>
-              </div>
               <PlanDisplay
                 plan={mealPlan}
                 onRegenerate={handleRegenerate}
@@ -296,6 +416,13 @@ const App: React.FC = () => {
         <p>© 2024 Y-Nutri. Designed for Yonsei Students.</p>
         <p className="mt-2 text-xs">Powered by Google Gemini 2.5 Flash</p>
       </footer>
+
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        userProfile={userProfile}
+        onUpdate={handleProfileUpdate}
+      />
     </div>
   );
 };
