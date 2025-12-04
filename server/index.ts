@@ -76,22 +76,21 @@ if (process.env.NODE_ENV === 'production') {
     index: false
   });
   
-  // 정적 파일 서빙 - API 경로 제외
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-    staticMiddleware(req, res, next);
-  });
-  
-  // API가 아닌 GET 요청만 index.html로 리다이렉트 (SPA 라우팅 지원)
+  // 정적 파일 서빙 및 SPA 라우팅 - GET 요청만 처리 (API 경로 제외)
   app.get('*', (req, res, next) => {
     // API 라우트는 제외
     if (req.path.startsWith('/api')) {
       return next();
     }
     
-    // 파일이 없으면 index.html 반환
+    // 정적 파일이 존재하는지 확인
+    const filePath = path.join(frontendDistPath, req.path);
+    if (existsSync(filePath) && statSync(filePath).isFile()) {
+      // 정적 파일 서빙
+      return staticMiddleware(req, res, next);
+    }
+    
+    // 파일이 없으면 index.html 반환 (SPA 라우팅)
     const indexPath = path.join(frontendDistPath, 'index.html');
     if (existsSync(indexPath)) {
       res.sendFile(indexPath, (err) => {
