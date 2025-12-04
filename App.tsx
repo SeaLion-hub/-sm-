@@ -254,6 +254,7 @@ const App: React.FC = () => {
                 loading={loading}
                 selectedDate={selectedDate}
                 onDateChange={handleDateChange}
+                campus={userProfile.campus}
               />
             </div>
           )}

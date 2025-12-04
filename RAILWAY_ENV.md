@@ -47,21 +47,41 @@ FRONTEND_URL=https://your-custom-domain.com
 - **필수**: ❌ 아니오
 - **참고**: 커스텀 도메인을 사용하지 않으면 설정 불필요
 
-## 네이버 API (향후 사용 시)
+## 네이버 지도 API
 
-### `NAVER_CLIENT_ID`
+### `VITE_NAVER_CLIENT_ID` (프론트엔드)
+```
+VITE_NAVER_CLIENT_ID=your-naver-client-id
+```
+- **용도**: 네이버 지도 Dynamic Map API 클라이언트 ID
+- **필수**: ✅ 예 (지도 기능 사용 시)
+- **참고**: [네이버 클라우드 플랫폼 콘솔](https://console.ncloud.com/)에서 발급
+- **주의**: `VITE_` 접두사 필수 (Vite 환경 변수)
+
+### `NAVER_CLIENT_ID` (백엔드)
 ```
 NAVER_CLIENT_ID=your-naver-client-id
 ```
-- **용도**: 네이버 지도/검색 API 클라이언트 ID
-- **필수**: ❌ 아니오 (현재 미사용)
+- **용도**: 네이버 지도 Geocoding API 클라이언트 ID
+- **필수**: ✅ 예 (지도 기능 사용 시)
+- **참고**: 프론트엔드와 동일한 Client ID 사용 가능
 
-### `NAVER_CLIENT_SECRET`
+### `NAVER_CLIENT_SECRET` (백엔드)
 ```
 NAVER_CLIENT_SECRET=your-naver-client-secret
 ```
-- **용도**: 네이버 지도/검색 API 클라이언트 시크릿
-- **필수**: ❌ 아니오 (현재 미사용)
+- **용도**: 네이버 지도 Geocoding API 클라이언트 시크릿
+- **필수**: ✅ 예 (지도 기능 사용 시)
+- **참고**: [네이버 클라우드 플랫폼 콘솔](https://console.ncloud.com/)에서 발급
+
+### `X_NCP_APIGW_API_KEY` (백엔드)
+```
+X_NCP_APIGW_API_KEY=your-api-gateway-key
+```
+- **용도**: 네이버 지도 Directions 5 API Gateway 키
+- **필수**: ✅ 예 (길찾기 기능 사용 시)
+- **참고**: [네이버 클라우드 플랫폼 콘솔](https://console.ncloud.com/)에서 발급
+- **주의**: Directions 5 API는 무료 5건/일 제한이 있습니다
 
 ## 환경 변수 설정 방법
 
@@ -78,6 +98,26 @@ NAVER_CLIENT_SECRET=your-naver-client-secret
 NODE_ENV=production
 JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
 GEMINI_API_KEY=AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+VITE_NAVER_CLIENT_ID=your-naver-client-id
+NAVER_CLIENT_ID=your-naver-client-id
+NAVER_CLIENT_SECRET=your-naver-client-secret
+X_NCP_APIGW_API_KEY=your-api-gateway-key
+```
+
+## 로컬 개발 환경 설정
+
+로컬 개발 시 다음 파일에 환경 변수를 설정하세요:
+
+### 루트 `.env` (프론트엔드)
+```
+VITE_NAVER_CLIENT_ID=your-naver-client-id
+```
+
+### `server/.env` (백엔드)
+```
+NAVER_CLIENT_ID=your-naver-client-id
+NAVER_CLIENT_SECRET=your-naver-client-secret
+X_NCP_APIGW_API_KEY=your-api-gateway-key
 ```
 
 ## 주의사항

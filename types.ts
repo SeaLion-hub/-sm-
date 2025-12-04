@@ -54,6 +54,8 @@ export interface MealOption {
   impact?: string; // 구체적인 영향 (예: "근육 합성 촉진", "혈당 안정화" 등)
   detailedReason?: string; // 상세한 추천 이유
   priceEstimate?: string; // 예상 가격대
+  address?: string; // 식당 주소
+  coordinates?: MapCoordinates; // 식당 좌표
 }
 
 export interface DailyMealSection {
@@ -105,4 +107,29 @@ export interface RestaurantMenu {
 export interface RestaurantData {
   campus: Campus;
   restaurants: RestaurantMenu[];
+}
+
+// 네이버 지도 관련 타입
+export interface MapCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
+export interface GeocodeResponse {
+  address: string;
+  coordinates: MapCoordinates;
+}
+
+export interface DirectionsResponse {
+  summary: {
+    distance: number; // 미터 단위
+    duration: number; // 초 단위
+  };
+  path: MapCoordinates[];
+  guide: Array<{
+    point: MapCoordinates;
+    instructions: string;
+    distance: number;
+    duration: number;
+  }>;
 }

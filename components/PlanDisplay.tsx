@@ -1,16 +1,11 @@
 
 import React, { useState } from 'react';
-import { DailyPlan, MealOption, PlaceType } from '../types';
+import { DailyPlan, MealOption, PlaceType, MapCoordinates } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
-import { MapPin, Info, ExternalLink, School, Store, Coffee, Calendar, TrendingUp } from 'lucide-react';
+import { MapPin, Info, ExternalLink, School, Store, Coffee, Calendar, TrendingUp, Navigation } from 'lucide-react';
+import RestaurantMap from './RestaurantMap';
+import { getDirections, getCampusCoordinates } from '../services/mapService';
 
-interface PlanDisplayProps {
-  plan: DailyPlan;
-  onRegenerate: () => void;
-  loading: boolean;
-  selectedDate: string;
-  onDateChange: (date: string) => void;
-}
 
 const PlaceIcon = ({ type }: { type: PlaceType }) => {
   switch (type) {
@@ -21,9 +16,34 @@ const PlaceIcon = ({ type }: { type: PlaceType }) => {
   }
 };
 
-const MealOptionCard: React.FC<{ option: MealOption }> = ({ option }) => {
+const MealOptionCard: React.FC<{ 
+  option: MealOption;
+  onShowMap: (option: MealOption) => void;
+  campus?: string;
+}> = ({ option, onShowMap, campus }) => {
   // 네이버 지도 검색 링크 생성 (모바일/PC 모두 동작)
   const mapSearchUrl = `https://map.naver.com/v5/search/${encodeURIComponent(option.placeName)}`;
+  const [showDirections, setShowDirections] = useState(false);
+
+  const handleShowMap = () => {
+    onShowMap(option);
+  };
+
+  const handleDirections = async () => {
+    if (!option.coordinates || !campus) return;
+    
+    const campusCoords = getCampusCoordinates(campus);
+    const directions = await getDirections(campusCoords, option.coordinates);
+    
+    if (directions) {
+      // Directions 정보를 사용하여 네이버 지도 길찾기 링크 열기
+      const directionsUrl = `https://map.naver.com/v5/directions/${campusCoords.longitude},${campusCoords.latitude},,/${option.coordinates.longitude},${option.coordinates.latitude},,?c=15,0,0,0,dh`;
+      window.open(directionsUrl, '_blank');
+    } else {
+      // 실패 시 일반 검색 링크로 대체
+      window.open(mapSearchUrl, '_blank');
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:border-yonsei-blue transition-all group">
@@ -42,15 +62,25 @@ const MealOptionCard: React.FC<{ option: MealOption }> = ({ option }) => {
             <h4 className="font-bold text-gray-800 text-lg leading-tight">{option.placeName}</h4>
           </div>
         </div>
-        <a 
-          href={mapSearchUrl} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-green-600 hover:underline transition-colors"
-          title="네이버 지도로 보기"
-        >
-          지도 <ExternalLink size={10} />
-        </a>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShowMap}
+            className="flex items-center gap-1 text-xs text-gray-400 hover:text-yonsei-blue hover:underline transition-colors"
+            title="지도에서 보기"
+          >
+            <MapPin size={12} />
+            지도
+          </button>
+          <a 
+            href={mapSearchUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-gray-400 hover:text-green-600 hover:underline transition-colors"
+            title="네이버 지도로 보기"
+          >
+            <ExternalLink size={10} />
+          </a>
+        </div>
       </div>
 
       <div className="mb-3 pl-10">
@@ -94,12 +124,32 @@ const MealOptionCard: React.FC<{ option: MealOption }> = ({ option }) => {
           <div className="text-yellow-400">지</div>
         </div>
       </div>
+      
+      {option.coordinates && campus && (
+        <button
+          onClick={handleDirections}
+          className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-yonsei-blue/10 hover:bg-yonsei-blue/20 text-yonsei-blue rounded-lg transition-colors text-xs font-medium"
+        >
+          <Navigation size={14} />
+          캠퍼스에서 길찾기
+        </button>
+      )}
     </div>
   );
 };
 
-const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, selectedDate, onDateChange }) => {
+interface PlanDisplayProps {
+  plan: DailyPlan;
+  onRegenerate: () => void;
+  loading: boolean;
+  selectedDate: string;
+  onDateChange: (date: string) => void;
+  campus?: string;
+}
+
+const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, selectedDate, onDateChange, campus }) => {
   const [activeTab, setActiveTab] = useState<'breakfast' | 'lunch' | 'dinner'>('lunch');
+  const [selectedMapOption, setSelectedMapOption] = useState<MealOption | null>(null);
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
@@ -237,7 +287,12 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
           <div className="p-6 bg-gray-50/50">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {plan[activeTab].map((option, idx) => (
-                    <MealOptionCard key={`${activeTab}-${idx}`} option={option} />
+                    <MealOptionCard 
+                      key={`${activeTab}-${idx}`} 
+                      option={option}
+                      onShowMap={setSelectedMapOption}
+                      campus={campus}
+                    />
                 ))}
             </div>
             {plan[activeTab].length === 0 && (
@@ -256,6 +311,23 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onRegenerate, loading, 
           </div>
         </div>
       </div>
+
+      {/* 지도 모달 */}
+      {selectedMapOption && (
+        <RestaurantMap
+          placeName={selectedMapOption.placeName}
+          address={selectedMapOption.address}
+          coordinates={selectedMapOption.coordinates}
+          onClose={() => setSelectedMapOption(null)}
+          onDirections={(coords) => {
+            if (campus) {
+              const campusCoords = getCampusCoordinates(campus);
+              const directionsUrl = `https://map.naver.com/v5/directions/${campusCoords.longitude},${campusCoords.latitude},,/${coords.longitude},${coords.latitude},,?c=15,0,0,0,dh`;
+              window.open(directionsUrl, '_blank');
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

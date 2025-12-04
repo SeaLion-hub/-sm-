@@ -8,6 +8,7 @@ import { initDatabase } from './db/database.js';
 import { cafeteriaRouter } from './routes/cafeteria.js';
 import { restaurantRouter } from './routes/restaurant.js';
 import { authRouter } from './routes/auth.js';
+import { mapRouter } from './routes/map.js';
 
 dotenv.config();
 
@@ -61,6 +62,7 @@ app.use('/api/auth', (req, res, next) => {
 app.use('/api/auth', authRouter);
 app.use('/api/cafeteria', cafeteriaRouter);
 app.use('/api/restaurants', restaurantRouter);
+app.use('/api/map', mapRouter);
 
 // 프론트엔드 정적 파일 서빙 (프로덕션 환경)
 if (process.env.NODE_ENV === 'production') {
@@ -133,7 +135,7 @@ if (process.env.NODE_ENV === 'production') {
     res.status(404).json({
       error: 'Not Found',
       message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`,
-      availableRoutes: ['/health', '/api/auth', '/api/cafeteria', '/api/restaurants']
+      availableRoutes: ['/health', '/api/auth', '/api/cafeteria', '/api/restaurants', '/api/map']
     });
   });
 }
