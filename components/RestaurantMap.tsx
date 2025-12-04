@@ -38,7 +38,7 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
         // 네이버 지도 API 동적 로드
         // @ts-ignore - Vite 환경 변수
         const clientId = (import.meta.env.VITE_NAVER_CLIENT_ID as string) || '';
-        
+
         if (!clientId) {
           setError('네이버 지도 API 키가 설정되지 않았습니다.');
           setIsLoading(false);
@@ -52,16 +52,16 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
           script.type = 'text/javascript';
           script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${clientId}&submodules=geocoder`;
           script.async = true;
-          
+
           script.onload = () => {
             createMap();
           };
-          
+
           script.onerror = () => {
             setError('네이버 지도 API를 불러오는데 실패했습니다.');
             setIsLoading(false);
           };
-          
+
           document.head.appendChild(script);
           return;
         }
@@ -84,18 +84,28 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
 
         // 좌표가 없으면 주소로 Geocoding 시도
         let finalCoordinates = mapCoordinates;
-        
+
         if (!finalCoordinates && address) {
-          try {
-            const response = await fetch(`/api/map/geocode?address=${encodeURIComponent(address)}`);
-            if (response.ok) {
-              const data = await response.json();
-              finalCoordinates = data.coordinates;
-              setMapCoordinates(finalCoordinates);
+          (async () => {
+            try {
+              const response = await fetch(`/api/map/geocode?address=${encodeURIComponent(address)}`);
+              if (response.ok) {
+                const data = await response.json();
+                finalCoordinates = data.coordinates;
+                setMapCoordinates(finalCoordinates);
+                // Re-center map if created
+                if (mapInstanceRef.current && finalCoordinates) {
+                  const newCenter = new window.naver.maps.LatLng(finalCoordinates.latitude, finalCoordinates.longitude);
+                  mapInstanceRef.current.setCenter(newCenter);
+                  if (markerRef.current) {
+                    markerRef.current.setPosition(newCenter);
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('Geocoding failed:', err);
             }
-          } catch (err) {
-            console.warn('Geocoding failed:', err);
-          }
+          })();
         }
 
         // 기본 좌표 (신촌 캠퍼스)

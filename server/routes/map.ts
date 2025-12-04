@@ -53,8 +53,8 @@ mapRouter.get('/geocode', async (req, res) => {
       });
     }
 
-    const data = await response.json();
-    
+    const data = await response.json() as any;
+
     if (data.status === 'OK' && data.addresses && data.addresses.length > 0) {
       const firstAddress = data.addresses[0];
       res.json({
@@ -140,12 +140,12 @@ mapRouter.get('/directions', async (req, res) => {
       });
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
 
     if (data.code === 0 && data.route && data.route.trafast) {
       const route = data.route.trafast[0];
       const summary = route.summary;
-      
+
       // 경로 좌표 추출
       const path: Array<{ latitude: number; longitude: number }> = [];
       route.path.forEach((point: number[]) => {
@@ -162,7 +162,7 @@ mapRouter.get('/directions', async (req, res) => {
         distance: number;
         duration: number;
       }> = [];
-      
+
       route.guide?.forEach((g: any) => {
         guide.push({
           point: {
