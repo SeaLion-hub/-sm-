@@ -55,20 +55,34 @@ app.use('/api/restaurants', restaurantRouter);
 
 // 프론트엔드 정적 파일 서빙 (프로덕션 환경)
 if (process.env.NODE_ENV === 'production') {
-  const frontendDistPath = path.join(__dirname, '../../dist');
-  app.use(express.static(frontendDistPath));
+  // dist 폴더 경로 수정 (server/dist가 아닌 루트의 dist)
+  const frontendDistPath = path.join(__dirname, '../dist');
+  console.log('Frontend dist path:', frontendDistPath);
+  
+  // 정적 파일 서빙 (CSS, JS 등)
+  app.use(express.static(frontendDistPath, {
+    maxAge: '1y',
+    etag: true,
+    setHeaders: (res, filePath) => {
+      // CSS 파일의 MIME 타입 명시적 설정
+      if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    }
+  }));
   
   // 모든 라우트를 index.html로 리다이렉트 (SPA 라우팅 지원)
-  app.get('*', (req, res) => {
+  app.get('*', (req, res, next) => {
     // API 라우트는 제외
     if (req.path.startsWith('/api')) {
-      return res.status(404).json({ 
-        error: 'Not Found', 
-        message: `경로를 찾을 수 없습니다: ${req.method} ${req.path}`,
-        availableRoutes: ['/health', '/api/auth', '/api/cafeteria', '/api/restaurants']
-      });
+      return next(); // 다음 미들웨어로 (404 핸들러)
     }
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
+    res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+      if (err) {
+        console.error('Error sending index.html:', err);
+        res.status(500).send('Internal Server Error');
+      }
+    });
   });
 } else {
   // 개발 환경 404 핸들러
